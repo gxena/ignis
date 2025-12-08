@@ -179,7 +179,7 @@ if 'mqtt_client_initialized' not in st.session_state:
         "timestamp": datetime.now(),
         "Temperature": 0.0,
         "CO2": 0.0, 
-        "NOx": 0,   
+           # "NOx": 0,   # Removed as it's not being fetched
         "PM2_5": 0, 
         "status": "UNKNOWN"
     }
@@ -201,20 +201,33 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     try:
         raw_data = msg.payload.decode()
+        print(f"\n[RAW DATA TERIMA]: {raw_data}")
         data = json.loads(raw_data)
 
-        temp_val = data.get('temp', 0.0)
-        gas_val = data.get('gas', 0.0) # Map 'gas' to CO2
-        dust_val = data.get('dust', 0.0) # Map 'dust' to PM2_5
-        status_val = data.get('status', 'UNKNOWN')
+        # AMBIL DATA SATU PER SATU (FETCHING)
+        dust = data.get('dust', 0.0)      # Debu level (%)
+        gas = data.get('gas', 0.0)        # Udara quality (ppb)
+        temp = data.get('temp', 0.0)      # Suhu (°C)
+        status = data.get('status', 'UNKNOWN')
+
+        # --- DISINI TEMANMU OLAH DATANYA ---
+        print(f"--- PARSED DATA ---")
+        print(f"Debu   : {dust} %")
+        print(f"Udara  : {gas} ppb")
+        print(f"Suhu   : {temp} C")
+        print(f"Status : {status}")
+
+        # Contoh Logic Olah Data:
+        if status == "DANGER":
+            print(">>> WARNING: DATA BAHAYA TERCATAT KE DATABASE! <<<")
 
         new_iot_data = {
             "timestamp": datetime.now(),
-            "Temperature": temp_val,
-            "CO2": gas_val, 
-            "NOx": 0, # Defaulting NOx to 0 as not in provided MQTT data
-            "PM2_5": dust_val,
-            "status": status_val
+            "Temperature": temp,
+            "CO2": gas, 
+            "NOx": 0, # Not available in current MQTT data
+            "PM2_5": dust,
+            "status": status
         }
 
         # Put data in queue (thread-safe, no session state access)
@@ -295,20 +308,26 @@ def page_iot():
     
     latest_data = st.session_state.latest_mqtt_data
     
+    # Display status alert
+    if latest_data['status'] == "DANGER":
+        st.error(f"⚠️ WARNING: DANGEROUS STATUS DETECTED! Status: {latest_data['status']}")
+    elif latest_data['status'] == "WARNING":
+        st.warning(f"⚠️ Status: {latest_data['status']}")
+    else:
+        st.success(f"✅ Status: {latest_data['status']}")
+    
     # Display current metrics
     st.divider()
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3 = st.columns(3)
 
     # Calculate deltas for metrics. Handle initial state where history might be empty or short.
     prev_temp = st.session_state.iot_history.iloc[-2]['Temperature'] if len(st.session_state.iot_history) > 1 else latest_data['Temperature']
-    prev_co2 = st.session_state.iot_history.iloc[-2]['CO2'] if len(st.session_state.iot_history) > 1 else latest_data['CO2']
-    prev_nox = st.session_state.iot_history.iloc[-2]['NOx'] if len(st.session_state.iot_history) > 1 else latest_data['NOx']
-    prev_pm25 = st.session_state.iot_history.iloc[-2]['PM2_5'] if len(st.session_state.iot_history) > 1 else latest_data['PM2_5']
+    prev_gas = st.session_state.iot_history.iloc[-2]['CO2'] if len(st.session_state.iot_history) > 1 else latest_data['CO2']
+    prev_dust = st.session_state.iot_history.iloc[-2]['PM2_5'] if len(st.session_state.iot_history) > 1 else latest_data['PM2_5']
 
-    col1.metric(T["current_temp"], f"{latest_data['Temperature']:.1f} °C", f"{latest_data['Temperature'] - prev_temp:.1f}")
-    col2.metric(T["current_co2"], f"{latest_data['CO2']:.1f}", f"{latest_data['CO2'] - prev_co2:.1f}") # Unit is now raw 'gas' value
-    col3.metric(T["current_nox"], f"{latest_data['NOx']:.0f} ppm", f"{latest_data['NOx'] - prev_nox:.0f}")
-    col4.metric(T["current_pm25"], f"{latest_data['PM2_5']:.0f} µg/m³", f"{latest_data['PM2_5'] - prev_pm25:.0f}")
+    col1.metric(T["current_temp"], f"{latest_data['Temperature']:.1f} °C", f"{latest_data['Temperature'] - prev_temp:+.1f}")
+    col2.metric(T["current_co2"], f"{latest_data['CO2']:.1f} ppb", f"{latest_data['CO2'] - prev_gas:+.1f}") # Air quality (gas in ppb)
+    col3.metric(T["current_pm25"], f"{latest_data['PM2_5']:.1f} %", f"{latest_data['PM2_5'] - prev_dust:+.1f}") # Dust level in %
     st.divider()
 
     # Display historical charts
@@ -319,7 +338,7 @@ def page_iot():
         st.line_chart(history_df["Temperature"])
 
         st.subheader(T["historical_emissions"])
-        st.line_chart(history_df[["CO2", "NOx", "PM2_5"]])
+        st.line_chart(history_df[["CO2", "PM2_5"]])
 
         st.subheader(T["historical_data_header"])
         st.dataframe(history_df.tail(20), use_container_width=True)
