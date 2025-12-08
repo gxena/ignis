@@ -4,6 +4,7 @@ import numpy as np
 import time
 import random
 from datetime import datetime
+from queue import Queue
 
 import paho.mqtt.client as mqtt
 import json
@@ -165,7 +166,7 @@ T = LANGUAGES[st.session_state.lang]
 with col1:
     st.title(T["app_title"])
 
-# --- MQTT Client Setup ---
+# --- MQTT Client Setup with Queue ---
 BROKER = "broker.hivemq.com"
 PORT = 1883
 TOPIC = "proyek/iot/sl2_ignis"
@@ -173,11 +174,7 @@ TOPIC = "proyek/iot/sl2_ignis"
 # Initialize session state variables
 if 'mqtt_client_initialized' not in st.session_state:
     st.session_state.mqtt_client_initialized = False
-
-if 'mqtt_lock' not in st.session_state:
-    st.session_state.mqtt_lock = threading.Lock()
-
-if 'latest_mqtt_data' not in st.session_state:
+    st.session_state.mqtt_data_queue = Queue()
     st.session_state.latest_mqtt_data = {
         "timestamp": datetime.now(),
         "Temperature": 0.0,
@@ -186,6 +183,13 @@ if 'latest_mqtt_data' not in st.session_state:
         "PM2_5": 0, 
         "status": "UNKNOWN"
     }
+
+# Get queue reference (thread-safe, no session state access needed)
+if 'mqtt_data_queue' not in st.session_state:
+    st.session_state.mqtt_data_queue = Queue()
+
+# Use a module-level variable for the queue to avoid session state access in callbacks
+_mqtt_queue = st.session_state.mqtt_data_queue
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
@@ -213,17 +217,13 @@ def on_message(client, userdata, msg):
             "status": status_val
         }
 
-        # Access session state safely with lock
-        if 'mqtt_lock' in st.session_state:
-            with st.session_state.mqtt_lock:
-                if 'latest_mqtt_data' in st.session_state:
-                    st.session_state.latest_mqtt_data = new_iot_data
+        # Put data in queue (thread-safe, no session state access)
+        _mqtt_queue.put(new_iot_data)
         
     except Exception as e:
         print(f"MQTT: Error parsing message: {e}")
 
 if st.session_state.mqtt_client_initialized == False:
-
     client = mqtt.Client()
     client.on_connect = on_connect
     client.on_message = on_message
@@ -274,24 +274,26 @@ def page_iot():
     st.header(T["iot_header"])
     st.subheader(T["iot_subheader"])
 
-    # Retrieve the latest data from MQTT session state with lock
-    with st.session_state.mqtt_lock:
-        latest_data = st.session_state.latest_mqtt_data.copy() if 'latest_mqtt_data' in st.session_state else None
+    # Process all pending messages from MQTT queue
+    while not st.session_state.mqtt_data_queue.empty():
+        try:
+            latest_data = st.session_state.mqtt_data_queue.get_nowait()
+            st.session_state.latest_mqtt_data = latest_data
+            
+            # Add to history if it's new
+            if len(st.session_state.iot_history) == 0 or latest_data['timestamp'] != st.session_state.iot_history.iloc[-1]['timestamp']:
+                new_df_row = pd.DataFrame([latest_data])
+                st.session_state.iot_history = pd.concat(
+                    [st.session_state.iot_history, new_df_row],
+                    ignore_index=True
+                )
+                # Keep only the last 100 entries
+                if len(st.session_state.iot_history) > 100:
+                    st.session_state.iot_history = st.session_state.iot_history.tail(100)
+        except:
+            pass
     
-    if latest_data is None:
-        st.warning("Waiting for MQTT data...")
-        return
-    
-    # Add latest data to history if it's new
-    if len(st.session_state.iot_history) == 0 or latest_data['timestamp'] != st.session_state.iot_history.iloc[-1]['timestamp']:
-        new_df_row = pd.DataFrame([latest_data])
-        st.session_state.iot_history = pd.concat(
-            [st.session_state.iot_history, new_df_row],
-            ignore_index=True
-        )
-        # Keep only the last 100 entries
-        if len(st.session_state.iot_history) > 100:
-            st.session_state.iot_history = st.session_state.iot_history.tail(100)
+    latest_data = st.session_state.latest_mqtt_data
     
     # Display current metrics
     st.divider()
