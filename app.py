@@ -89,7 +89,7 @@ LANGUAGES = {
         "iot_subheader": "Live data from IoT sensors in the combustion system via MQTT.",
         "current_temp": "Current Temperature",
         "current_co2": "Current CO2",
-        "current_nox": "Current NOx",
+        
         "current_pm25": "Current PM2.5",
         "historical_temp": "Historical Temperature (°C)",
         "historical_emissions": "Historical Emissions (ppm / µg/m³)",
@@ -119,7 +119,7 @@ LANGUAGES = {
         "iot_subheader": "दहन प्रणाली में IoT सेंसर से लाइव डेटा MQTT के माध्यम से।",
         "current_temp": "वर्तमान तापमान",
         "current_co2": "वर्तमान CO2",
-        "current_nox": "वर्तमान NOx",
+        
         "current_pm25": "वर्तमान PM2.5",
         "historical_temp": "ऐतिहासिक तापमान (°C)",
         "historical_emissions": "ऐतिहासिक उत्सर्जन (ppm / µg/m³)",
@@ -179,9 +179,8 @@ if 'mqtt_client_initialized' not in st.session_state:
     st.session_state.latest_mqtt_data = {
         "timestamp": datetime.now(),
         "Temperature": 0.0,
-        "CO2": 0.0, 
-           # "NOx": 0,   # Removed as it's not being fetched
-        "PM2_5": 0, 
+          "CO2": 0.0, 
+          "PM2_5": 0, 
         "status": "UNKNOWN"
     }
 
@@ -229,7 +228,6 @@ def on_message(client, userdata, msg):
             "timestamp": datetime.now(),
             "Temperature": temp,
             "CO2": gas, 
-            "NOx": 0, # Not available in current MQTT data
             "PM2_5": dust,
             "status": status
         }
@@ -302,6 +300,46 @@ def page_iot():
     st.subheader(T["iot_subheader"])
     # Clarify which field is dust and which is gas
     st.markdown("**Dust** = PM2.5 (%) &nbsp;&nbsp;|&nbsp;&nbsp; **Gas** = CO2 (ppb)")
+
+    # Export / Import controls for history
+    col_exp, col_imp = st.columns([1,1])
+    with col_exp:
+        if not st.session_state.iot_history.empty:
+            csv_bytes = st.session_state.iot_history.to_csv(index=False).encode('utf-8')
+            st.download_button("Export history (CSV)", data=csv_bytes, file_name="iot_history.csv", mime='text/csv')
+    with col_imp:
+        uploaded = st.file_uploader("Import history CSV", type=["csv"], accept_multiple_files=False)
+        if uploaded is not None:
+            try:
+                imported_df = pd.read_csv(uploaded, parse_dates=['timestamp'])
+                # Normalize columns
+                if 'PM2_5' not in imported_df.columns and 'PM2.5' in imported_df.columns:
+                    imported_df = imported_df.rename(columns={'PM2.5': 'PM2_5'})
+                expected = ["timestamp", "Temperature", "CO2", "PM2_5"]
+                missing = [c for c in expected if c not in imported_df.columns]
+                if missing:
+                    st.error(f"Imported CSV is missing columns: {missing}")
+                else:
+                    mode = st.radio("Import mode", ["append (merge)", "replace"], index=0)
+                    if st.button("Apply import"):
+                        imported_df = imported_df[["timestamp", "Temperature", "CO2", "PM2_5"]]
+                        # ensure timestamp dtype
+                        imported_df['timestamp'] = pd.to_datetime(imported_df['timestamp'])
+                        if mode == 'replace':
+                            st.session_state.iot_history = imported_df
+                        else:
+                            combined = pd.concat([st.session_state.iot_history, imported_df], ignore_index=True)
+                            combined = combined.drop_duplicates(subset=['timestamp'])
+                            combined = combined.sort_values('timestamp')
+                            st.session_state.iot_history = combined
+                        # persist
+                        try:
+                            st.session_state.iot_history.to_csv(DATA_FILE, index=False)
+                            st.success('Import applied and saved')
+                        except Exception as e:
+                            st.error(f'Import applied but failed to save: {e}')
+            except Exception as e:
+                st.error(f"Failed to parse uploaded CSV: {e}")
 
     # Process all pending messages from MQTT queue
     while not st.session_state.mqtt_data_queue.empty():
