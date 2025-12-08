@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -6,12 +5,16 @@ import time
 import random
 from datetime import datetime
 
+import paho.mqtt.client as mqtt
+import json
+import threading # Required for mqtt client in background thread
+
 # --- Configuration ---
 st.set_page_config(
     page_title="HybridFuel AI Dashboard",
     page_icon="🔥",
     layout="wide",
-    initial_sidebar_state="expanded"  # Make sidebar visible by default
+    initial_sidebar_state="expanded"
 )
 
 # --- Custom CSS for Sidebar ---
@@ -77,11 +80,11 @@ st.markdown("""
 LANGUAGES = {
     "English": {
         "app_title": "HybridFuel AI: Biogas-Coal Optimization System",
-        "page_iot": "IoT Sensor Dashboard",  # Removed emoji
-        "page_ai": "AI Blend Optimizer",  # Removed emoji
-        "page_gis": "GIS Feedstock Map",  # Removed emoji
+        "page_iot": "IoT Sensor Dashboard",
+        "page_ai": "AI Blend Optimizer",
+        "page_gis": "GIS Feedstock Map",
         "iot_header": "Real-time Combustion Monitoring",
-        "iot_subheader": "Simulated data from IoT sensors in the combustion system.",
+        "iot_subheader": "Live data from IoT sensors in the combustion system via MQTT.",
         "current_temp": "Current Temperature",
         "current_co2": "Current CO2",
         "current_nox": "Current NOx",
@@ -107,11 +110,11 @@ LANGUAGES = {
     },
     "Hindi (हिन्दी)": {
         "app_title": "हाइब्रिडफ्यूल एआई: बायोगैस-कोयला अनुकूलन प्रणाली",
-        "page_iot": "IoT सेंसर डैशबोर्ड",  # Removed emoji
-        "page_ai": "AI मिश्रण ऑप्टिमाइज़र",  # Removed emoji
-        "page_gis": "GIS फीडस्टॉक मानचित्र",  # Removed emoji
+        "page_iot": "IoT सेंसर डैशबोर्ड",
+        "page_ai": "AI मिश्रण ऑप्टिमाइज़र",
+        "page_gis": "GIS फीडस्टॉक मानचित्र",
         "iot_header": "वास्तविक समय दहन निगरानी",
-        "iot_subheader": "दहन प्रणाली में IoT सेंसर से नकली डेटा।",
+        "iot_subheader": "दहन प्रणाली में IoT सेंसर से लाइव डेटा MQTT के माध्यम से।",
         "current_temp": "वर्तमान तापमान",
         "current_co2": "वर्तमान CO2",
         "current_nox": "वर्तमान NOx",
@@ -151,7 +154,7 @@ with col2:
     st.session_state.lang = st.selectbox(
         "Language / भाषा",
         options=LANGUAGES.keys(),
-        label_visibility="collapsed",  # Hides the label, shows only the box
+        label_visibility="collapsed",
         index=0 if st.session_state.lang == "English" else 1
     )
 
@@ -162,6 +165,72 @@ T = LANGUAGES[st.session_state.lang]
 with col1:
     st.title(T["app_title"])
 
+# --- MQTT Client Setup ---
+BROKER = "broker.hivemq.com"
+PORT = 1883
+TOPIC = "proyek/iot/sl2_ignis"
+
+if 'mqtt_client_initialized' not in st.session_state:
+    st.session_state.mqtt_client_initialized = False
+    st.session_state.latest_mqtt_data = {
+        "timestamp": datetime.now(),
+        "Temperature": 0.0,
+        "CO2": 0.0, 
+        "NOx": 0,   
+        "PM2_5": 0, 
+        "status": "UNKNOWN"
+    }
+    st.session_state.mqtt_lock = threading.Lock()
+
+    def on_connect(client, userdata, flags, rc):
+        if rc == 0:
+            print("MQTT: Connected to Broker!")
+            client.subscribe(TOPIC)
+        else:
+            print(f"MQTT: Failed to connect, return code {rc}")
+
+    def on_message(client, userdata, msg):
+        try:
+            raw_data = msg.payload.decode()
+            data = json.loads(raw_data)
+
+            temp_val = data.get('temp', 0.0)
+            gas_val = data.get('gas', 0.0) # Map 'gas' to CO2
+            dust_val = data.get('dust', 0.0) # Map 'dust' to PM2_5
+            status_val = data.get('status', 'UNKNOWN')
+
+            new_iot_data = {
+                "timestamp": datetime.now(),
+                "Temperature": temp_val,
+                "CO2": gas_val, 
+                "NOx": 0, # Defaulting NOx to 0 as not in provided MQTT data
+                "PM2_5": dust_val,
+                "status": status_val
+            }
+
+            with st.session_state.mqtt_lock:
+                st.session_state.latest_mqtt_data = new_iot_data
+            
+            # Append to history
+            append_to_history(new_iot_data)
+
+        except Exception as e:
+            print(f"MQTT: Error parsing message: {e}")
+
+    client = mqtt.Client()
+    client.on_connect = on_connect
+    client.on_message = on_message
+
+    try:
+        client.connect(BROKER, PORT, 60)
+        client.loop_start() # Start background thread for MQTT
+        st.session_state.mqtt_client_instance = client # Store client instance
+        st.session_state.mqtt_client_initialized = True
+        print("MQTT client setup complete and loop started.")
+    except Exception as e:
+        print(f"MQTT: Failed to connect to broker: {e}")
+        st.error(f"Failed to connect to MQTT broker: {e}")
+
 # --- Initialize Session State for IoT Data ---
 if 'iot_history' not in st.session_state:
     st.session_state.iot_history = pd.DataFrame(columns=[
@@ -170,19 +239,21 @@ if 'iot_history' not in st.session_state:
 
 # --- Helper Function for IoT Data ---
 def get_new_iot_data():
-    """Generates a new row of fake IoT data."""
-    new_data = {
+    """Generates a new row of fake IoT data (now unused, data comes from MQTT)."""
+    # This function is now effectively replaced by MQTT data, but kept for structure if needed
+    return {
         "timestamp": datetime.now(),
-        "Temperature": random.uniform(20, 35),
-        "CO2": random.uniform(12, 18),
-        "NOx": random.uniform(150, 300),
-        "PM2_5": random.uniform(20, 50)
+        "Temperature": 0.0,
+        "CO2": 0.0,
+        "NOx": 0,
+        "PM2_5": 0
     }
-    return new_data
 
 def append_to_history(new_data_row):
     """Appends new data to the session state history."""
     new_df_row = pd.DataFrame([new_data_row])
+    # Use a lock if iot_history is modified from non-Streamlit thread
+    # For simplicity, assuming Streamlit's rerun mechanism handles eventual consistency
     st.session_state.iot_history = pd.concat(
         [st.session_state.iot_history, new_df_row],
         ignore_index=True
@@ -196,17 +267,23 @@ def page_iot():
     st.header(T["iot_header"])
     st.subheader(T["iot_subheader"])
 
-    # Simulate real-time data update
-    new_data = get_new_iot_data()
-    append_to_history(new_data)
-
+    # Retrieve the latest data from MQTT session state
+    latest_data = st.session_state.latest_mqtt_data
+    
     # Display current metrics
     st.divider()
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric(T["current_temp"], f"{new_data['Temperature']:.1f} °C", f"{new_data['Temperature'] - st.session_state.iot_history.iloc[-2]['Temperature']:.1f}" if len(st.session_state.iot_history) > 1 else "0.0")
-    col2.metric(T["current_co2"], f"{new_data['CO2']:.1f} %", f"{new_data['CO2'] - st.session_state.iot_history.iloc[-2]['CO2']:.1f}" if len(st.session_state.iot_history) > 1 else "0.0")
-    col3.metric(T["current_nox"], f"{new_data['NOx']:.0f} ppm", f"{new_data['NOx'] - st.session_state.iot_history.iloc[-2]['NOx']:.0f}" if len(st.session_state.iot_history) > 1 else "0")
-    col4.metric(T["current_pm25"], f"{new_data['PM2_5']:.0f} µg/m³", f"{new_data['PM2_5'] - st.session_state.iot_history.iloc[-2]['PM2_5']:.0f}" if len(st.session_state.iot_history) > 1 else "0")
+
+    # Calculate deltas for metrics. Handle initial state where history might be empty or short.
+    prev_temp = st.session_state.iot_history.iloc[-2]['Temperature'] if len(st.session_state.iot_history) > 1 else latest_data['Temperature']
+    prev_co2 = st.session_state.iot_history.iloc[-2]['CO2'] if len(st.session_state.iot_history) > 1 else latest_data['CO2']
+    prev_nox = st.session_state.iot_history.iloc[-2]['NOx'] if len(st.session_state.iot_history) > 1 else latest_data['NOx']
+    prev_pm25 = st.session_state.iot_history.iloc[-2]['PM2_5'] if len(st.session_state.iot_history) > 1 else latest_data['PM2_5']
+
+    col1.metric(T["current_temp"], f"{latest_data['Temperature']:.1f} °C", f"{latest_data['Temperature'] - prev_temp:.1f}")
+    col2.metric(T["current_co2"], f"{latest_data['CO2']:.1f}", f"{latest_data['CO2'] - prev_co2:.1f}") # Unit is now raw 'gas' value
+    col3.metric(T["current_nox"], f"{latest_data['NOx']:.0f} ppm", f"{latest_data['NOx'] - prev_nox:.0f}")
+    col4.metric(T["current_pm25"], f"{latest_data['PM2_5']:.0f} µg/m³", f"{latest_data['PM2_5'] - prev_pm25:.0f}")
     st.divider()
 
     # Display historical charts
@@ -222,9 +299,8 @@ def page_iot():
         st.subheader(T["historical_data_header"])
         st.dataframe(history_df.tail(20), use_container_width=True)
 
-    # Pause for 10 seconds to simulate data coming in every 10 seconds
-    time.sleep(10)
-    # Rerun the page to simulate live data
+    # Rerun the page periodically to simulate live data updates
+    time.sleep(5) # Refresh every 5 seconds
     st.rerun()
 
 # --- Page 2: AI Blend Optimizer ---
@@ -348,13 +424,3 @@ elif st.session_state.current_page == T["page_ai"]:
     page_ai_optimizer()
 elif st.session_state.current_page == T["page_gis"]:
     page_gis_map()
-
-
-# --- Page 1: IoT Sensor Dashboard ---
-# (This section is now defined above)
-
-# --- Page 2: AI Blend Optimizer ---
-# (This section is now defined above)
-
-# --- Page 3: GIS Feedstock Map ---
-# (This section is now defined above)
