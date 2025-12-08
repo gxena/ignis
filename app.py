@@ -170,8 +170,14 @@ BROKER = "broker.hivemq.com"
 PORT = 1883
 TOPIC = "proyek/iot/sl2_ignis"
 
+# Initialize session state variables
 if 'mqtt_client_initialized' not in st.session_state:
     st.session_state.mqtt_client_initialized = False
+
+if 'mqtt_lock' not in st.session_state:
+    st.session_state.mqtt_lock = threading.Lock()
+
+if 'latest_mqtt_data' not in st.session_state:
     st.session_state.latest_mqtt_data = {
         "timestamp": datetime.now(),
         "Temperature": 0.0,
@@ -180,42 +186,43 @@ if 'mqtt_client_initialized' not in st.session_state:
         "PM2_5": 0, 
         "status": "UNKNOWN"
     }
-    st.session_state.mqtt_lock = threading.Lock()
 
-    def on_connect(client, userdata, flags, rc):
-        if rc == 0:
-            print("MQTT: Connected to Broker!")
-            client.subscribe(TOPIC)
-        else:
-            print(f"MQTT: Failed to connect, return code {rc}")
+def on_connect(client, userdata, flags, rc):
+    if rc == 0:
+        print("MQTT: Connected to Broker!")
+        client.subscribe(TOPIC)
+    else:
+        print(f"MQTT: Failed to connect, return code {rc}")
 
-    def on_message(client, userdata, msg):
-        try:
-            raw_data = msg.payload.decode()
-            data = json.loads(raw_data)
+def on_message(client, userdata, msg):
+    try:
+        raw_data = msg.payload.decode()
+        data = json.loads(raw_data)
 
-            temp_val = data.get('temp', 0.0)
-            gas_val = data.get('gas', 0.0) # Map 'gas' to CO2
-            dust_val = data.get('dust', 0.0) # Map 'dust' to PM2_5
-            status_val = data.get('status', 'UNKNOWN')
+        temp_val = data.get('temp', 0.0)
+        gas_val = data.get('gas', 0.0) # Map 'gas' to CO2
+        dust_val = data.get('dust', 0.0) # Map 'dust' to PM2_5
+        status_val = data.get('status', 'UNKNOWN')
 
-            new_iot_data = {
-                "timestamp": datetime.now(),
-                "Temperature": temp_val,
-                "CO2": gas_val, 
-                "NOx": 0, # Defaulting NOx to 0 as not in provided MQTT data
-                "PM2_5": dust_val,
-                "status": status_val
-            }
+        new_iot_data = {
+            "timestamp": datetime.now(),
+            "Temperature": temp_val,
+            "CO2": gas_val, 
+            "NOx": 0, # Defaulting NOx to 0 as not in provided MQTT data
+            "PM2_5": dust_val,
+            "status": status_val
+        }
 
+        # Access session state safely with lock
+        if 'mqtt_lock' in st.session_state:
             with st.session_state.mqtt_lock:
-                st.session_state.latest_mqtt_data = new_iot_data
-            
-            # Append to history
-            append_to_history(new_iot_data)
+                if 'latest_mqtt_data' in st.session_state:
+                    st.session_state.latest_mqtt_data = new_iot_data
+        
+    except Exception as e:
+        print(f"MQTT: Error parsing message: {e}")
 
-        except Exception as e:
-            print(f"MQTT: Error parsing message: {e}")
+if st.session_state.mqtt_client_initialized == False:
 
     client = mqtt.Client()
     client.on_connect = on_connect
@@ -267,8 +274,24 @@ def page_iot():
     st.header(T["iot_header"])
     st.subheader(T["iot_subheader"])
 
-    # Retrieve the latest data from MQTT session state
-    latest_data = st.session_state.latest_mqtt_data
+    # Retrieve the latest data from MQTT session state with lock
+    with st.session_state.mqtt_lock:
+        latest_data = st.session_state.latest_mqtt_data.copy() if 'latest_mqtt_data' in st.session_state else None
+    
+    if latest_data is None:
+        st.warning("Waiting for MQTT data...")
+        return
+    
+    # Add latest data to history if it's new
+    if len(st.session_state.iot_history) == 0 or latest_data['timestamp'] != st.session_state.iot_history.iloc[-1]['timestamp']:
+        new_df_row = pd.DataFrame([latest_data])
+        st.session_state.iot_history = pd.concat(
+            [st.session_state.iot_history, new_df_row],
+            ignore_index=True
+        )
+        # Keep only the last 100 entries
+        if len(st.session_state.iot_history) > 100:
+            st.session_state.iot_history = st.session_state.iot_history.tail(100)
     
     # Display current metrics
     st.divider()
