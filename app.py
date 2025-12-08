@@ -6,6 +6,7 @@ import random
 from datetime import datetime
 from queue import Queue
 from pathlib import Path
+import altair as alt
 
 import paho.mqtt.client as mqtt
 import json
@@ -204,7 +205,7 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     try:
         raw_data = msg.payload.decode()
-        print(f"\n[RAW DATA TERIMA]: {raw_data}")
+        # print(f"\n[RAW DATA TERIMA]: {raw_data}")
         data = json.loads(raw_data)
 
         # AMBIL DATA SATU PER SATU (FETCHING)
@@ -213,12 +214,12 @@ def on_message(client, userdata, msg):
         temp = data.get('temp', 0.0)      # Suhu (°C)
         status = data.get('status', 'UNKNOWN')
 
-        # --- DISINI TEMANMU OLAH DATANYA ---
-        print(f"--- PARSED DATA ---")
-        print(f"Debu   : {dust} %")
-        print(f"Udara  : {gas} ppb")
-        print(f"Suhu   : {temp} C")
-        print(f"Status : {status}")
+        # # --- DISINI TEMANMU OLAH DATANYA ---
+        # print(f"--- PARSED DATA ---")
+        # print(f"Debu   : {dust} %")
+        # print(f"Udara  : {gas} ppb")
+        # print(f"Suhu   : {temp} C")
+        # print(f"Status : {status}")
 
         # Contoh Logic Olah Data:
         if status == "DANGER":
@@ -301,45 +302,7 @@ def page_iot():
     # Clarify which field is dust and which is gas
     st.markdown("**Dust** = PM2.5 (%) &nbsp;&nbsp;|&nbsp;&nbsp; **Gas** = CO2 (ppb)")
 
-    # Export / Import controls for history
-    col_exp, col_imp = st.columns([1,1])
-    with col_exp:
-        if not st.session_state.iot_history.empty:
-            csv_bytes = st.session_state.iot_history.to_csv(index=False).encode('utf-8')
-            st.download_button("Export history (CSV)", data=csv_bytes, file_name="iot_history.csv", mime='text/csv')
-    with col_imp:
-        uploaded = st.file_uploader("Import history CSV", type=["csv"], accept_multiple_files=False)
-        if uploaded is not None:
-            try:
-                imported_df = pd.read_csv(uploaded, parse_dates=['timestamp'])
-                # Normalize columns
-                if 'PM2_5' not in imported_df.columns and 'PM2.5' in imported_df.columns:
-                    imported_df = imported_df.rename(columns={'PM2.5': 'PM2_5'})
-                expected = ["timestamp", "Temperature", "CO2", "PM2_5"]
-                missing = [c for c in expected if c not in imported_df.columns]
-                if missing:
-                    st.error(f"Imported CSV is missing columns: {missing}")
-                else:
-                    mode = st.radio("Import mode", ["append (merge)", "replace"], index=0)
-                    if st.button("Apply import"):
-                        imported_df = imported_df[["timestamp", "Temperature", "CO2", "PM2_5"]]
-                        # ensure timestamp dtype
-                        imported_df['timestamp'] = pd.to_datetime(imported_df['timestamp'])
-                        if mode == 'replace':
-                            st.session_state.iot_history = imported_df
-                        else:
-                            combined = pd.concat([st.session_state.iot_history, imported_df], ignore_index=True)
-                            combined = combined.drop_duplicates(subset=['timestamp'])
-                            combined = combined.sort_values('timestamp')
-                            st.session_state.iot_history = combined
-                        # persist
-                        try:
-                            st.session_state.iot_history.to_csv(DATA_FILE, index=False)
-                            st.success('Import applied and saved')
-                        except Exception as e:
-                            st.error(f'Import applied but failed to save: {e}')
-            except Exception as e:
-                st.error(f"Failed to parse uploaded CSV: {e}")
+    # (Import moved below historical data table)
 
     # Process all pending messages from MQTT queue
     while not st.session_state.mqtt_data_queue.empty():
@@ -394,7 +357,18 @@ def page_iot():
 
     if not history_df.empty:
         st.subheader(T["historical_temp"])
-        st.line_chart(history_df["Temperature"])
+        # Altair chart with y-axis starting at 10
+        temp_df = history_df["Temperature"].reset_index().rename(columns={'timestamp': 'timestamp', 'Temperature': 'Temperature'})
+        try:
+            chart = alt.Chart(temp_df).mark_line().encode(
+                x=alt.X('timestamp:T', title='Timestamp'),
+                y=alt.Y('Temperature:Q', scale=alt.Scale(domain=[10, temp_df['Temperature'].max() if not temp_df['Temperature'].isnull().all() else 10])),
+                tooltip=['timestamp:T','Temperature']
+            ).interactive()
+            st.altair_chart(chart, use_container_width=True)
+        except Exception:
+            # Fallback
+            st.line_chart(history_df["Temperature"])
 
         st.subheader("Historical Gas (CO2) - ppb")
         st.line_chart(history_df[["CO2"]])
@@ -404,6 +378,40 @@ def page_iot():
 
         st.subheader(T["historical_data_header"])
         st.dataframe(history_df.tail(20), use_container_width=True)
+
+        # CSV importer placed below historical data table
+        uploaded = st.file_uploader("Import history CSV", type=["csv"], accept_multiple_files=False)
+        if uploaded is not None:
+            try:
+                imported_df = pd.read_csv(uploaded, parse_dates=['timestamp'])
+                # Normalize columns
+                if 'PM2_5' not in imported_df.columns and 'PM2.5' in imported_df.columns:
+                    imported_df = imported_df.rename(columns={'PM2.5': 'PM2_5'})
+                expected = ["timestamp", "Temperature", "CO2", "PM2_5"]
+                missing = [c for c in expected if c not in imported_df.columns]
+                if missing:
+                    st.error(f"Imported CSV is missing columns: {missing}")
+                else:
+                    mode = st.radio("Import mode", ["append (merge)", "replace"], index=0)
+                    if st.button("Apply import"):
+                        imported_df = imported_df[["timestamp", "Temperature", "CO2", "PM2_5"]]
+                        # ensure timestamp dtype
+                        imported_df['timestamp'] = pd.to_datetime(imported_df['timestamp'])
+                        if mode == 'replace':
+                            st.session_state.iot_history = imported_df
+                        else:
+                            combined = pd.concat([st.session_state.iot_history, imported_df], ignore_index=True)
+                            combined = combined.drop_duplicates(subset=['timestamp'])
+                            combined = combined.sort_values('timestamp')
+                            st.session_state.iot_history = combined
+                        # persist
+                        try:
+                            st.session_state.iot_history.to_csv(DATA_FILE, index=False)
+                            st.success('Import applied and saved')
+                        except Exception as e:
+                            st.error(f'Import applied but failed to save: {e}')
+            except Exception as e:
+                st.error(f"Failed to parse uploaded CSV: {e}")
 
     # Rerun the page periodically to simulate live data updates
     time.sleep(5) # Refresh every 5 seconds
