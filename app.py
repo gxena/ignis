@@ -209,7 +209,7 @@ def on_message(client, userdata, msg):
         data = json.loads(raw_data)
 
         # AMBIL DATA SATU PER SATU (FETCHING)
-        dust = data.get('dust', 0.0)      # Debu level (%)
+        dust = data.get('pm25', 0.0)      # Debu level (%)
         gas = data.get('gas', 0.0)        # Udara quality (ppb)
         temp = data.get('temp', 0.0)      # Suhu (°C)
         status = data.get('status', 'UNKNOWN')
