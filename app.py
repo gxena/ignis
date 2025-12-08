@@ -5,6 +5,7 @@ import time
 import random
 from datetime import datetime
 from queue import Queue
+from pathlib import Path
 
 import paho.mqtt.client as mqtt
 import json
@@ -191,6 +192,9 @@ if 'mqtt_data_queue' not in st.session_state:
 # Use a module-level variable for the queue to avoid session state access in callbacks
 _mqtt_queue = st.session_state.mqtt_data_queue
 
+# File to persist history between restarts
+DATA_FILE = Path(__file__).parent / "iot_history.csv"
+
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print("MQTT: Connected to Broker!")
@@ -253,9 +257,20 @@ if st.session_state.mqtt_client_initialized == False:
 
 # --- Initialize Session State for IoT Data ---
 if 'iot_history' not in st.session_state:
-    st.session_state.iot_history = pd.DataFrame(columns=[
-        "timestamp", "Temperature", "CO2", "NOx", "PM2_5"
-    ])
+    # Try to load persisted history from CSV
+    if DATA_FILE.exists():
+        try:
+            df = pd.read_csv(DATA_FILE, parse_dates=['timestamp'])
+            # Ensure expected columns exist
+            expected = ["timestamp", "Temperature", "CO2", "PM2_5", "status"]
+            for c in expected:
+                if c not in df.columns:
+                    df[c] = 0 if c != 'timestamp' else pd.NaT
+            st.session_state.iot_history = df[ ["timestamp", "Temperature", "CO2", "PM2_5", "status"] ]
+        except Exception:
+            st.session_state.iot_history = pd.DataFrame(columns=["timestamp", "Temperature", "CO2", "PM2_5", "status"])
+    else:
+        st.session_state.iot_history = pd.DataFrame(columns=["timestamp", "Temperature", "CO2", "PM2_5", "status"])
 
 # --- Helper Function for IoT Data ---
 def get_new_iot_data():
@@ -265,7 +280,6 @@ def get_new_iot_data():
         "timestamp": datetime.now(),
         "Temperature": 0.0,
         "CO2": 0.0,
-        "NOx": 0,
         "PM2_5": 0
     }
 
@@ -286,6 +300,8 @@ def append_to_history(new_data_row):
 def page_iot():
     st.header(T["iot_header"])
     st.subheader(T["iot_subheader"])
+    # Clarify which field is dust and which is gas
+    st.markdown("**Dust** = PM2.5 (%) &nbsp;&nbsp;|&nbsp;&nbsp; **Gas** = CO2 (ppb)")
 
     # Process all pending messages from MQTT queue
     while not st.session_state.mqtt_data_queue.empty():
@@ -303,6 +319,11 @@ def page_iot():
                 # Keep only the last 100 entries
                 if len(st.session_state.iot_history) > 100:
                     st.session_state.iot_history = st.session_state.iot_history.tail(100)
+                # Persist history to CSV so data survives restarts
+                try:
+                    st.session_state.iot_history.to_csv(DATA_FILE, index=False)
+                except Exception as e:
+                    print(f"Failed to save history to CSV: {e}")
         except:
             pass
     
@@ -337,8 +358,11 @@ def page_iot():
         st.subheader(T["historical_temp"])
         st.line_chart(history_df["Temperature"])
 
-        st.subheader(T["historical_emissions"])
-        st.line_chart(history_df[["CO2", "PM2_5"]])
+        st.subheader("Historical Gas (CO2) - ppb")
+        st.line_chart(history_df[["CO2"]])
+
+        st.subheader("Historical Dust (PM2.5) - %")
+        st.line_chart(history_df[["PM2_5"]])
 
         st.subheader(T["historical_data_header"])
         st.dataframe(history_df.tail(20), use_container_width=True)
