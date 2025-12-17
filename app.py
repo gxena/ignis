@@ -422,59 +422,133 @@ def page_ai_optimizer():
     st.header(T["ai_header"])
     st.info(T["ai_subheader"])
 
-    col1, col2 = st.columns([1, 2])
+    # ---------------------------------------------------
+    # 1. REAL COAL PLANT DATA (YOUR PROVIDED DATA)
+    # ---------------------------------------------------
+    plants_data = [
+        {'plant_name':'North Karanpura STPP','coal_tons':7969147,'TSP':23907,'PM10':14344,'PM2.5':12910,'SO2':55784},
+        {'plant_name':'Patratu STPP','coal_tons':8229144,'TSP':28802,'PM10':17281,'PM2.5':15553,'SO2':41146},
+        {'plant_name':'Tenughat TPS','coal_tons':2233800,'TSP':15637,'PM10':9382,'PM2.5':8444,'SO2':13403},
+        {'plant_name':'Talcher Kaniha','coal_tons':10704720,'TSP':42819,'PM10':25691,'PM2.5':23122,'SO2':85638},
+        {'plant_name':'Darlipali','coal_tons':8563776,'TSP':29117,'PM10':17470,'PM2.5':15723,'SO2':33913},
+        {'plant_name':'IB Thermal','coal_tons':9493650,'TSP':34177,'PM10':20506,'PM2.5':18456,'SO2':28196},
+        {'plant_name':'Korba Super Thermal','coal_tons':9825216,'TSP':29476,'PM10':17685,'PM2.5':15917,'SO2':29181},
+        {'plant_name':'Sipat Super Thermal','coal_tons':10233432,'TSP':34794,'PM10':20876,'PM2.5':18789,'SO2':50655}
+    ]
+
+    df_plants = pd.DataFrame(plants_data)
+
+    # ---------------------------------------------------
+    # LEARN AVERAGE COAL EMISSION FACTORS
+    # ---------------------------------------------------
+    pollutants = ["TSP", "PM10", "PM2.5", "SO2"]
+    coal_EF_real = {pol: (df_plants[pol] / df_plants["coal_tons"]).mean() for pol in pollutants}
+
+    # ---------------------------------------------------
+    # BIOGAS EMISSION FACTORS (tons/ton fuel)
+    # ---------------------------------------------------
+    biogas_EF = {
+        'TSP':   0.05/1000,
+        'PM10':  0.05/1000,
+        'PM2.5': 0.02/1000,
+        'SO2':   0.01/1000,
+        'NOx':   0.50/1000
+    }
+
+    # ---------------------------------------------------
+    # STREAMlit UI
+    # ---------------------------------------------------
+    st.subheader("Biogas & Coal Blending Calculator")
+    st.write("Calculate your emissions after blending biogas with coal")
+
+    st.markdown("---")
+
+    st.subheader("Plant Input Data")
+
+    col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader(T["ai_recommendation"])
-        coal_input = st.slider(T["coal_input"], 50, 500, 200)
-        biogas_mix = st.slider(T["biogas_mix"], 0, 100, 10)
-
-        # Simple Linear Regression (Placeholder Model)
-        # Power = Base(Coal) + Bonus(Biogas)
-        pred_power = (coal_input * 0.8) + (biogas_mix * 1.5)
-        # Pollution = Base(Coal) - Reduction(Biogas)
-        pred_pollution_base = coal_input * 0.1
-        pred_pollution_reduction = (biogas_mix / 100) * (pred_pollution_base * 0.9) # 90% reduction at 100% biogas
-        pred_pollution_final = pred_pollution_base - pred_pollution_reduction
-
-        st.metric(T["pred_power"], f"{pred_power:.1f} MW")
-        st.metric(
-            T["pred_reduction"],
-            f"{pred_pollution_reduction / (pred_pollution_base + 0.01) * 100:.0f}%",
-            f"~ {pred_pollution_final:.1f} PM2.5 Index"
-        )
-
-        st.subheader(T["safety_check"])
-        if biogas_mix > 40:
-            st.warning(T["safety_warn"])
-        else:
-            st.success(T["safety_ok"])
+        coal_consumption = st.number_input("Coal consumption (tons/year):", min_value=0.0, value=1000000.0)
 
     with col2:
-        if st.button(T["optimize_button"], use_container_width=True):
-            with st.spinner("Calculating optimal blend..."):
-                time.sleep(1) # Simulate calculation
-                best_blend = 0
-                best_score = 0
+        biogas_frac = st.slider("Biogas blending fraction:", 0.0, 1.0, 0.1)
 
-                for blend_perc in range(0, 101): # 0 to 100%
-                    if blend_perc <= 40: # Only check "safe" range
-                        power = (coal_input * 0.8) + (blend_perc * 1.5)
-                        pollution_base = coal_input * 0.1
-                        reduction = (blend_perc / 100) * (pollution_base * 0.9)
-                        pollution_final = pollution_base - reduction
+    st.markdown("### Baseline Emissions (tons/year)")
+    col3, col4, col5, col6 = st.columns(4)
 
-                        # Simple score: (Power) / (Pollution + 0.1 to avoid div by zero)
-                        # We want to maximize this score
-                        score = power / (pollution_final + 0.1)
+    with col3:
+        st.write("Total Suspended Particulates")
+        TSP_in = st.number_input("TSP", min_value=0.0, value=500.0)
+    with col4:
+        PM10_in = st.number_input("PM10", min_value=0.0, value=400.0)
+    with col5:
+        PM25_in = st.number_input("PM2.5", min_value=0.0, value=300.0)
+    with col6:
+        SO2_in = st.number_input("SO2", min_value=0.0, value=800.0)
 
-                        if score > best_score:
-                            best_score = score
-                            best_blend = blend_perc
+    st.markdown("### Pollution Control Systems")
 
-                st.subheader(T["optimal_blend_is"])
-                st.info(f"**{best_blend}% Biogas**")
-                st.write("This maximizes power output while minimizing pollution within the 'safe' operating range.")
+    col7, col8 = st.columns(2)
+
+    with col7:
+        st.write("Electrostatic Precipitator")
+        ESP = st.slider("ESP Efficiency (%)", 0, 100, 90)
+    with col8:
+        st.write("Flue Gas Desulfurization")
+        FGD = st.slider("FGD Efficiency (%)", 0, 100, 70)
+
+    # ---------------------------------------------------
+    # CALCULATE OUTPUTS
+    # ---------------------------------------------------
+    coal_share = 1 - biogas_frac
+    bio_share = biogas_frac
+
+    coal_baseline = {
+        "TSP": TSP_in,
+        "PM10": PM10_in,
+        "PM2.5": PM25_in,
+        "SO2": SO2_in,
+        "NOx": 0.0
+    }
+
+    results = {}
+
+    for pol in coal_baseline:
+        coal_part = coal_baseline[pol] * coal_share
+        bio_part = biogas_EF[pol] * coal_consumption * bio_share
+        total = coal_part + bio_part
+
+        if pol in ["TSP","PM10","PM2.5"]:
+            total *= (1 - ESP/100)
+
+        if pol == "SO2":
+            total *= (1 - FGD/100)
+
+        results[pol] = total
+
+    # ---------------------------------------------------
+    # OUTPUT TABLE DISPLAY
+    # ---------------------------------------------------
+    df_out = pd.DataFrame({
+        "Pollutant": list(coal_baseline.keys()),
+        "Baseline_Emissions (tons)": list(coal_baseline.values()),
+        "Blended_Emissions (tons)": [results[p] for p in coal_baseline],
+        "Reduction (%)": [
+            round((1 - results[p]/coal_baseline[p])*100,2) if coal_baseline[p] > 0 else "N/A"
+            for p in coal_baseline.keys()
+        ]
+    })
+
+    st.markdown("## Final Results")
+
+    st.dataframe(df_out, use_container_width=True)
+
+    # Show key reduction indicators
+    st.markdown("## Summary")
+
+    for pol in ["TSP", "PM10", "PM2.5", "SO2"]:
+        reduction = df_out.loc[df_out["Pollutant"] == pol, "Reduction (%)"].values[0]
+        st.success(f"**{pol} Reduction:** {reduction}%")
 
 
 # --- Page 3: GIS Feedstock Map ---
