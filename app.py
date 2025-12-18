@@ -764,14 +764,14 @@ def page_gis_map():
             icon=folium.Icon(color="purple")
         ).add_to(m)
     
-    # Add routes as polylines
-    for route in routes:
-        folium.PolyLine(
-            locations=[[route["from"]["lat"], route["from"]["lon"]], [route["to"]["lat"], route["to"]["lon"]]],
-            color=route["color"],
-            weight=3,
-            popup=f"Route from {route['from']['name']} to {route['to']['name']}"
-        ).add_to(m)
+    # Add routes as polylines (commented out to avoid serialization issues)
+    # for route in routes:
+    #     folium.PolyLine(
+    #         locations=[[route["from"]["lat"], route["from"]["lon"]], [route["to"]["lat"], route["to"]["lon"]]],
+    #         color=route["color"],
+    #         weight=3,
+    #         popup=f"Route from {route['from']['name']} to {route['to']['name']}"
+    #     ).add_to(m)
     
     # Display the map
     st_folium(m, width=700, height=500)
