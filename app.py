@@ -163,8 +163,8 @@ with col2:
 T = LANGUAGES[st.session_state.lang]
 
 # Set the main app title in the first column
-with col1:
-    st.title(T["app_title"])
+# with col1:
+#     st.title(T["app_title"])
 
 # --- MQTT Client Setup with Queue ---
 BROKER = "broker.hivemq.com"
@@ -304,7 +304,7 @@ def append_to_history(new_data_row):
 
 # --- Page 1: IoT Sensor Dashboard ---
 def page_iot():
-    # st.header(T["iot_header"])
+    st.header(T["iot_header"])
     st.subheader(T["iot_subheader"])
     
     # Sensor Location Selection
@@ -449,7 +449,7 @@ def page_iot():
 
 # --- Page 2: AI Blend Optimizer ---
 def page_ai_optimizer():
-    # st.header(T["ai_header"])
+    st.header(T["ai_header"])
 
     # ---------------------------------------------------
     # 1. REAL COAL PLANT DATA (YOUR PROVIDED DATA)
@@ -582,7 +582,7 @@ def page_ai_optimizer():
 
 # --- Page 3: GIS Feedstock Map ---
 def page_gis_map():
-    # st.header(T["gis_header"])
+    st.header(T["gis_header"])
     st.info(T["gis_subheader"])
     st.write(T["gis_placeholder"])
 
