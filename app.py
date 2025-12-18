@@ -15,6 +15,7 @@ import threading # Required for mqtt client in background thread
 # For GIS map
 import folium
 from streamlit_folium import st_folium
+import fastkml
 
 # --- Configuration ---
 st.set_page_config(
@@ -721,48 +722,63 @@ def page_gis_map():
     # Create folium map
     import folium
     from streamlit_folium import st_folium
+    import fastkml
     
     m = folium.Map(location=[23.5, 85.0], zoom_start=8)
     
-    # Add markers for industries
-    for ind in industries:
-        folium.Marker(
-            location=[ind["lat"], ind["lon"]],
-            popup=f"Industry: {ind['name']}",
-            icon=folium.Icon(color="red")
-        ).add_to(m)
+    # Load KML file
+    kml_file = 'Only 2 checked KORBA (1).kml'
+    try:
+        k = fastkml.KML()
+        with open(kml_file, 'r', encoding='utf-8') as f:
+            k.from_string(f.read())
+        for feature in k.features():
+            for subfeature in feature.features():
+                if hasattr(subfeature, 'geometry') and subfeature.geometry:
+                    geojson = json.loads(subfeature.geometry.to_geojson())
+                    folium.GeoJson(geojson, name=subfeature.name).add_to(m)
+    except Exception as e:
+        st.error(f"Error loading KML: {e}")
     
-    # Add markers for coal mines
-    for mine in coal_mines:
-        folium.Marker(
-            location=[mine["lat"], mine["lon"]],
-            popup=f"Coal Mine: {mine['name']}",
-            icon=folium.Icon(color="black")
-        ).add_to(m)
+    # # Add markers for industries
+    # for ind in industries:
+    #     folium.Marker(
+    #         location=[ind["lat"], ind["lon"]],
+    #         popup=f"Industry: {ind['name']}",
+    #         icon=folium.Icon(color="red")
+    #     ).add_to(m)
     
-    # Add markers for biomass villages
-    for village in biomass_villages:
-        folium.Marker(
-            location=[village["lat"], village["lon"]],
-            popup=f"Biomass Village: {village['name']}",
-            icon=folium.Icon(color="green")
-        ).add_to(m)
+    # # Add markers for coal mines
+    # for mine in coal_mines:
+    #     folium.Marker(
+    #         location=[mine["lat"], mine["lon"]],
+    #         popup=f"Coal Mine: {mine['name']}",
+    #         icon=folium.Icon(color="black")
+    #     ).add_to(m)
     
-    # Add markers for waste sites
-    for waste in waste_sites:
-        folium.Marker(
-            location=[waste["lat"], waste["lon"]],
-            popup=f"Waste Site: {waste['name']}",
-            icon=folium.Icon(color="orange")
-        ).add_to(m)
+    # # Add markers for biomass villages
+    # for village in biomass_villages:
+    #     folium.Marker(
+    #         location=[village["lat"], village["lon"]],
+    #         popup=f"Biomass Village: {village['name']}",
+    #         icon=folium.Icon(color="green")
+    #     ).add_to(m)
     
-    # Add markers for pollution hotspots
-    for hotspot in pollution_hotspots:
-        folium.Marker(
-            location=[hotspot["lat"], hotspot["lon"]],
-            popup=f"Pollution Hotspot: {hotspot['name']}",
-            icon=folium.Icon(color="purple")
-        ).add_to(m)
+    # # Add markers for waste sites
+    # for waste in waste_sites:
+    #     folium.Marker(
+    #         location=[waste["lat"], waste["lon"]],
+    #         popup=f"Waste Site: {waste['name']}",
+    #         icon=folium.Icon(color="orange")
+    #     ).add_to(m)
+    
+    # # Add markers for pollution hotspots
+    # for hotspot in pollution_hotspots:
+    #     folium.Marker(
+    #         location=[hotspot["lat"], hotspot["lon"]],
+    #         popup=f"Pollution Hotspot: {hotspot['name']}",
+    #         icon=folium.Icon(color="purple")
+    #     ).add_to(m)
     
     # Add routes as polylines (commented out to avoid serialization issues)
     # for route in routes:

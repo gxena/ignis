@@ -1,0 +1,1305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>KORBA</name>
+    <description>Industrial Decarbonization – Mapping Draft</description>
+    <Style id="icon-1541-F57C00-nodesc-normal">
+      <IconStyle>
+        <color>ff007cf5</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="icon-1541-F57C00-nodesc-highlight">
+      <IconStyle>
+        <color>ff007cf5</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <StyleMap id="icon-1541-F57C00-nodesc">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1541-F57C00-nodesc-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1541-F57C00-nodesc-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1565-A52714-nodesc-normal">
+      <IconStyle>
+        <color>ff1427a5</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="icon-1565-A52714-nodesc-highlight">
+      <IconStyle>
+        <color>ff1427a5</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <StyleMap id="icon-1565-A52714-nodesc">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1565-A52714-nodesc-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1565-A52714-nodesc-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1587-0F9D58-nodesc-normal">
+      <IconStyle>
+        <color>ff589d0f</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="icon-1587-0F9D58-nodesc-highlight">
+      <IconStyle>
+        <color>ff589d0f</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <StyleMap id="icon-1587-0F9D58-nodesc">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1587-0F9D58-nodesc-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1587-0F9D58-nodesc-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1717-01579B-nodesc-normal">
+      <IconStyle>
+        <color>ff9b5701</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="icon-1717-01579B-nodesc-highlight">
+      <IconStyle>
+        <color>ff9b5701</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <StyleMap id="icon-1717-01579B-nodesc">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1717-01579B-nodesc-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1717-01579B-nodesc-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1722-01579B-nodesc-normal">
+      <IconStyle>
+        <color>ff9b5701</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="icon-1722-01579B-nodesc-highlight">
+      <IconStyle>
+        <color>ff9b5701</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <StyleMap id="icon-1722-01579B-nodesc">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1722-01579B-nodesc-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1722-01579B-nodesc-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1850-FFEA00-nodesc-normal">
+      <IconStyle>
+        <color>ff00eaff</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="icon-1850-FFEA00-nodesc-highlight">
+      <IconStyle>
+        <color>ff00eaff</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <StyleMap id="icon-1850-FFEA00-nodesc">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1850-FFEA00-nodesc-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1850-FFEA00-nodesc-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="line-E65100-1200-nodesc-normal">
+      <LineStyle>
+        <color>ff0051e6</color>
+        <width>1.2</width>
+      </LineStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="line-E65100-1200-nodesc-highlight">
+      <LineStyle>
+        <color>ff0051e6</color>
+        <width>1.8</width>
+      </LineStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <StyleMap id="line-E65100-1200-nodesc">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#line-E65100-1200-nodesc-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#line-E65100-1200-nodesc-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="line-E65100-3131-nodesc-normal">
+      <LineStyle>
+        <color>ff0051e6</color>
+        <width>3.131</width>
+      </LineStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="line-E65100-3131-nodesc-highlight">
+      <LineStyle>
+        <color>ff0051e6</color>
+        <width>4.6965</width>
+      </LineStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <StyleMap id="line-E65100-3131-nodesc">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#line-E65100-3131-nodesc-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#line-E65100-3131-nodesc-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Folder>
+      <name>Industrial Locations</name>
+      <Placemark>
+        <name>NTPC Korba Super Thermal Power Station</name>
+        <styleUrl>#icon-1565-A52714-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.6591134,22.4114268,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Dr.Shyama Prasad Mukherjee Thermal Power Station</name>
+        <styleUrl>#icon-1565-A52714-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.7167019,22.3674237,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Atal Bihari Vajpayee Thermal Power Station, Janjgir Champa</name>
+        <styleUrl>#icon-1565-A52714-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.602041,22.0686328,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Adani -Korba Power Limited (Formerly Lanco Amarkantak Power Limited)</name>
+        <styleUrl>#icon-1565-A52714-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.724907,22.2453904,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>BALCO Main Aluminium Smelter</name>
+        <styleUrl>#icon-1565-A52714-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.740036,22.3982218,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>BALCO Captive Power Plant</name>
+        <styleUrl>#icon-1565-A52714-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.6783715,22.3941556,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Mini Hydro Power Plant</name>
+        <styleUrl>#icon-1565-A52714-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.6865242,22.4172826,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>BALCO Rolling Mill Unit</name>
+        <styleUrl>#icon-1565-A52714-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.7238214,22.3926337,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Korba Industrial Area Phase I</name>
+        <styleUrl>#icon-1565-A52714-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.7495479,22.3607224,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Korba Industrial Area Phase II</name>
+        <styleUrl>#icon-1565-A52714-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.7500595,22.3594501,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>INDIA STEEL FABRICATION</name>
+        <styleUrl>#icon-1565-A52714-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.6572155,22.4099618,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Secl Central Workshop</name>
+        <styleUrl>#icon-1565-A52714-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.7174266,22.3452705,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>SECL Gevra Coal Plant</name>
+        <styleUrl>#icon-1565-A52714-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.6050203,22.3309581,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>SECL Dipka Mines</name>
+        <styleUrl>#icon-1565-A52714-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.5318597,22.3286454,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>SECL KUSMUNDA WORKSHOP 1</name>
+        <styleUrl>#icon-1565-A52714-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.6658629,22.3419944,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>SECL Industrial Depot</name>
+        <styleUrl>#icon-1565-A52714-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.7139479,22.3426037,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>KCCL Workshop Dipka</name>
+        <styleUrl>#icon-1565-A52714-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.5442684,22.3327832,0
+          </coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+    <Folder>
+      <name><![CDATA[Waste Sources & Environmental Hotspots]]></name>
+      <Placemark>
+        <name>Gevra Coal Mines (SECL)</name>
+        <styleUrl>#icon-1850-FFEA00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.5459976,22.3381638,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Kusmunda Mine</name>
+        <styleUrl>#icon-1850-FFEA00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.6736875,22.3304375,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>SECL Dipka Mines</name>
+        <styleUrl>#icon-1850-FFEA00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.5318597,22.3286454,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>NTPC Korba Fly Ash Dyke</name>
+        <styleUrl>#icon-1850-FFEA00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.6591134,22.4114268,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Hasdeo TPS Ash Pond</name>
+        <styleUrl>#icon-1850-FFEA00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.602041,22.0686328,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Korba Municipal Solid Waste Dump Yard</name>
+        <styleUrl>#icon-1850-FFEA00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.7320162,22.3692352,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Korba Sewage Treatment Plant </name>
+        <styleUrl>#icon-1850-FFEA00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.7225018,22.3730949,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Industrial scrap yard, Korba</name>
+        <styleUrl>#icon-1850-FFEA00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.7377655,22.3914288,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Coal Washery – Lanco Amarkantak</name>
+        <styleUrl>#icon-1850-FFEA00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.556007,22.3915925,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Korba South Ash Impact Zone </name>
+        <styleUrl>#icon-1850-FFEA00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.5503563,22.3470904,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Dipka Coal Dust Exposure Zone </name>
+        <styleUrl>#icon-1850-FFEA00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.5204117,22.3313083,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Kusmunda Coal Transport Dust Zone </name>
+        <styleUrl>#icon-1850-FFEA00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.6648701,22.3438612,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Coal Handling Plant</name>
+        <styleUrl>#icon-1850-FFEA00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.6946637,22.4050128,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Coal Ash Pond CSEB</name>
+        <styleUrl>#icon-1850-FFEA00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.6962661,22.3886974,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Manikpur Coal Field, Korba</name>
+        <styleUrl>#icon-1850-FFEA00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.7358618,22.3187557,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Ash Dyke NTPC</name>
+        <styleUrl>#icon-1850-FFEA00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.6456434,22.4908303,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Ash Dyke Korba</name>
+        <styleUrl>#icon-1850-FFEA00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.7623563,22.3931487,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Ash Dyke Kusmunda</name>
+        <styleUrl>#icon-1850-FFEA00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.6593932,22.3658237,0
+          </coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+    <Folder>
+      <name><![CDATA[Logistics & Transport Infrastructure]]></name>
+      <Placemark>
+        <name>Korba Railway Station</name>
+        <styleUrl>#icon-1717-01579B-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.7129437,22.3373597,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Gevra Road Railway Station</name>
+        <styleUrl>#icon-1717-01579B-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.6461217,22.3493194,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Kusmunda Railway Siding</name>
+        <styleUrl>#icon-1717-01579B-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.6407795,22.351759,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>NTPC Railway siding </name>
+        <styleUrl>#icon-1717-01579B-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.6591134,22.4114268,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Bilaspur - Korba Road</name>
+        <styleUrl>#icon-1722-01579B-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.4337958,22.350851,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Korba Bus Stand</name>
+        <styleUrl>#icon-1722-01579B-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.7061141,22.3565581,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>SECL Main Road</name>
+        <styleUrl>#icon-1722-01579B-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.7142768,22.3508194,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Korba Goods Transport Yard</name>
+        <styleUrl>#icon-1722-01579B-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.7011514,22.3555924,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>TRANSPORT FACILITY CENTER</name>
+        <styleUrl>#icon-1722-01579B-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.7041135,22.3671467,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Line 10</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.7167019,22.3674237,0
+            82.7041135,22.3671467,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 12</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.7061141,22.3565581,0
+            82.7167019,22.3674237,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 13</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.7011514,22.3555924,0
+            82.7061141,22.3565581,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 14</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.7011514,22.3555924,0
+            82.7167019,22.3674237,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 15</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.7142768,22.3508194,0
+            82.7174266,22.3452705,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 16</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.7142768,22.3508194,0
+            82.7139479,22.3426037,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 17</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.7061141,22.3565581,0
+            82.7174266,22.3452705,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 18</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.7011514,22.3555924,0
+            82.7139479,22.3426037,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 19</name>
+        <styleUrl>#line-E65100-3131-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.724907,22.2453904,0
+            82.7266217,22.23969,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 20</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.5469898,22.3130211,0
+            82.5442684,22.3327832,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 21</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.5318597,22.3286454,0
+            82.5442684,22.3327832,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 22</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.5318597,22.3286454,0
+            82.5469898,22.3130211,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 23</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.5503563,22.3470904,0
+            82.5442684,22.3327832,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 24</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.5469898,22.3130211,0
+            82.6050203,22.3309581,0
+            82.6303058,22.3463673,0
+            82.6407795,22.351759,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 25</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.5503563,22.3470904,0
+            82.6050203,22.3309581,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 26</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.6648701,22.3438612,0
+            82.6658629,22.3419944,0
+            82.6461217,22.3493194,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 28</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.6571083,22.4094472,0
+            82.6911508,22.4052992,0
+            82.6864624,22.4177786,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 29</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.6616817,22.4163641,0
+            82.6572155,22.4099618,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 30</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.6616817,22.4163641,0
+            82.6865242,22.4172826,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 31</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.6091717,22.4847192,0
+            82.6572155,22.4099618,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 32</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.6091717,22.4847192,0
+            82.6865242,22.4172826,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 33</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.3264097,22.3753255,0
+            82.4337958,22.350851,0
+            82.5442684,22.3327832,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 36</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.2842406,22.053726,0
+            82.6050203,22.3309581,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 37</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.7358618,22.3187557,0
+            82.7174266,22.3452705,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 38</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.7358618,22.3187557,0
+            82.7139479,22.3426037,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 39</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.7358618,22.3187557,0
+            82.7500595,22.3594501,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 40</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.7358618,22.3187557,0
+            82.7495479,22.3607224,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 41</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.7167019,22.3674237,0
+            82.7225018,22.3730949,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 42</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.7320162,22.3692352,0
+            82.7167019,22.3674237,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 43</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.7320162,22.3692352,0
+            82.7495479,22.3607224,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 44</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.6946637,22.4050128,0
+            82.7238214,22.3926337,0
+            82.7377655,22.3914288,0
+            82.740036,22.3982218,0
+            82.7624342,22.4171858,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 45</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.6911508,22.4052992,0
+            82.7238214,22.3926337,0
+            82.6962661,22.3886974,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 46</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.602041,22.0686328,0
+            82.6050203,22.3309581,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 47</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.602041,22.0686328,0
+            82.724907,22.2453904,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 48</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.556007,22.3915925,0
+            82.6050203,22.3309581,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 49</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.6593932,22.3658237,0
+            82.6658629,22.3419944,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 50</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.7623563,22.3931487,0
+            82.740036,22.3982218,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 35</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.311042,22.86931,0
+            82.4337958,22.350851,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Line 34</name>
+        <styleUrl>#line-E65100-1200-nodesc</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            82.3343375,22.8522961,0
+            82.4337958,22.350851,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+    </Folder>
+    <Folder>
+      <name>Biomass / Feedstock Source Villages</name>
+      <Placemark>
+        <name>Chhuri Village - Agriculture Biomass</name>
+        <styleUrl>#icon-1587-0F9D58-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.6091717,22.4847192,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Saragbundiya Village - Crop Waste</name>
+        <styleUrl>#icon-1587-0F9D58-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.7266217,22.23969,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Hardi Bazar - Rural Biomass Marketplace</name>
+        <styleUrl>#icon-1587-0F9D58-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.5469898,22.3130211,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Darri Region - Mixed Feedstock</name>
+        <styleUrl>#icon-1587-0F9D58-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.6911508,22.4052992,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Jamnipali - Semi urban waste + biomass</name>
+        <styleUrl>#icon-1587-0F9D58-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.6616817,22.4163641,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Pali Region - Rice Belt</name>
+        <styleUrl>#icon-1587-0F9D58-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.3264097,22.3753255,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Dondro Village – Seasonal biomass availability</name>
+        <styleUrl>#icon-1587-0F9D58-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.7624342,22.4171858,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name><![CDATA[Bhelai Village – Paddy & husk residues]]></name>
+        <styleUrl>#icon-1587-0F9D58-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.2842406,22.053726,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Rani Atari Village – Agro-waste potential</name>
+        <styleUrl>#icon-1587-0F9D58-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.3343375,22.8522961,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Kendai Village - Paddy Residue</name>
+        <styleUrl>#icon-1587-0F9D58-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.311042,22.86931,0
+          </coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+    <Folder>
+      <name>Air Pollution Hotspots</name>
+      <Placemark>
+        <name>Gevra Mine Dust Zone </name>
+        <styleUrl>#icon-1541-F57C00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.5459976,22.3381638,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Dipka Dust Impact Zone </name>
+        <styleUrl>#icon-1541-F57C00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.5204117,22.3313083,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Kusmunda Dust Corridor </name>
+        <styleUrl>#icon-1541-F57C00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.6736875,22.3304375,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>NTPC Stack Emission Impact Zone </name>
+        <styleUrl>#icon-1541-F57C00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.6591134,22.4114268,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>BALCO Smelter Emission Zone</name>
+        <styleUrl>#icon-1541-F57C00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.6783715,22.3941556,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Hasdeo River Ash Drift Zone</name>
+        <styleUrl>#icon-1541-F57C00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.5886216,22.6024627,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Korba City Urban Exposure Zone</name>
+        <styleUrl>#icon-1541-F57C00-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            82.6999417,22.3508313,0
+          </coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+  </Document>
+</kml>
