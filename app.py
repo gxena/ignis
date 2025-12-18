@@ -14,7 +14,7 @@ import threading # Required for mqtt client in background thread
 
 # For GIS map
 import folium
-from streamlit_folium import st_folium, folium_static
+from streamlit_folium import st_folium
 from fastkml import kml, Placemark, Point
 
 # --- Configuration ---
@@ -733,7 +733,7 @@ def page_gis_map():
         with open(kml_file, 'r', encoding='utf-8') as f:
             k.from_string(f.read())
         for feature in k.features():
-            for subfeature in feature.features:
+            for subfeature in feature.features():
                 if isinstance(subfeature, Placemark) and subfeature.geometry:
                     geom = subfeature.geometry
                     if isinstance(geom, Point):
@@ -795,27 +795,27 @@ def page_gis_map():
     #     ).add_to(m)
     
     # Display the map
-    folium_static(m, width=700, height=500)
+    st_folium(m, width=700, height=500, returned_objects=[])
     
-    st.write("### Routing Logic")
-    st.write("To automate routing, you can integrate APIs like OpenRouteService or Google Directions API.")
-    st.write("For example, select a source and destination to calculate the optimal route:")
+    # st.write("### Routing Logic")
+    # st.write("To automate routing, you can integrate APIs like OpenRouteService or Google Directions API.")
+    # st.write("For example, select a source and destination to calculate the optimal route:")
     
-    # Simple routing demo (placeholder)
-    source_options = [v["name"] for v in biomass_villages + coal_mines]
-    dest_options = [i["name"] for i in industries]
+    # # Simple routing demo (placeholder)
+    # source_options = [v["name"] for v in biomass_villages + coal_mines]
+    # dest_options = [i["name"] for i in industries]
     
-    col1, col2 = st.columns(2)
-    with col1:
-        source = st.selectbox("Select Source", source_options)
-    with col2:
-        dest = st.selectbox("Select Destination", dest_options)
+    # col1, col2 = st.columns(2)
+    # with col1:
+    #     source = st.selectbox("Select Source", source_options)
+    # with col2:
+    #     dest = st.selectbox("Select Destination", dest_options)
     
-    if st.button("Calculate Route"):
-        # Placeholder for API call
-        st.write(f"Calculating route from {source} to {dest}...")
-        st.write("Distance: ~50 km, Time: ~1.5 hours (example)")
-        # In real implementation, call routing API here
+    # if st.button("Calculate Route"):
+    #     # Placeholder for API call
+    #     st.write(f"Calculating route from {source} to {dest}...")
+    #     st.write("Distance: ~50 km, Time: ~1.5 hours (example)")
+    #     # In real implementation, call routing API here
 
 # --- Page Navigation (Replaced with Sidebar) ---
 
