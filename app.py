@@ -733,9 +733,9 @@ def page_gis_map():
         with open(kml_file, 'r', encoding='utf-8') as f:
             k.from_string(f.read())
         for feature in k.features():
-            for folder in feature.features:
+            for folder in feature.features():
                 if isinstance(folder, Folder):
-                    for subfeature in folder.features:
+                    for subfeature in folder.features():
                         if isinstance(subfeature, Placemark) and subfeature.geometry:
                             geom = subfeature.geometry
                             if isinstance(geom, Point):
@@ -746,6 +746,7 @@ def page_gis_map():
                                 ).add_to(m)
     except Exception as e:
         st.error(f"Error loading KML: {e}")
+        print(k.from_string(f.read()))
     
     # # Add markers for industries
     # for ind in industries:
