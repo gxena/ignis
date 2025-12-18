@@ -15,7 +15,7 @@ import threading # Required for mqtt client in background thread
 # For GIS map
 import folium
 from streamlit_folium import st_folium
-import fastkml
+from fastkml import kml, Placemark, Point
 
 # --- Configuration ---
 st.set_page_config(
@@ -729,14 +729,20 @@ def page_gis_map():
     # Load KML file
     kml_file = 'Only 2 checked KORBA (1).kml'
     try:
-        k = fastkml.KML()
+        k = kml.KML()
         with open(kml_file, 'r', encoding='utf-8') as f:
             k.from_string(f.read())
         for feature in k.features():
-            for subfeature in feature.features():
-                if hasattr(subfeature, 'geometry') and subfeature.geometry:
-                    geojson = json.loads(subfeature.geometry.to_geojson())
-                    folium.GeoJson(geojson, name=subfeature.name).add_to(m)
+            for subfeature in feature.features:
+                if isinstance(subfeature, Placemark) and subfeature.geometry:
+                    geom = subfeature.geometry
+                    if isinstance(geom, Point):
+                        lon, lat, alt = geom.coords[0]  # Note: KML is lon, lat
+                        folium.Marker(
+                            location=[lat, lon],
+                            popup=subfeature.name,
+                            icon=folium.Icon(color="blue")
+                        ).add_to(m)
     except Exception as e:
         st.error(f"Error loading KML: {e}")
     
