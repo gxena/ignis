@@ -14,7 +14,7 @@ import threading # Required for mqtt client in background thread
 
 # --- Configuration ---
 st.set_page_config(
-    page_title="HybridFuel AI Dashboard",
+    page_title="HybridFuel Dashboard",
     page_icon="🔥",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -82,7 +82,7 @@ st.markdown("""
 # --- Language/Translation Setup ---
 LANGUAGES = {
     "English": {
-        "app_title": "HybridFuel AI: Biogas-Coal Optimization System",
+        "app_title": "HybridFuel: Biogas-Coal Optimization System",
         "page_iot": "IoT Sensor Dashboard",
         "page_ai": "AI Blend Optimizer",
         "page_gis": "GIS Feedstock Map",
@@ -95,8 +95,7 @@ LANGUAGES = {
         "historical_temp": "Historical Temperature (°C)",
         "historical_emissions": "Historical Emissions (ppm / µg/m³)",
         "historical_data_header": "Historical Data Log",
-        "ai_header": "AI-Powered Fuel Blend Optimization",
-        "ai_subheader": "This is a placeholder model. A real model will be trained on sensor data.",
+        "ai_header": "Fuel Blend Optimization",
         "coal_input": "Coal Input (Tons/hour)",
         "biogas_mix": "Biogas Mix (%)",
         "optimize_button": "Run Optimization",
@@ -126,7 +125,6 @@ LANGUAGES = {
         "historical_emissions": "ऐतिहासिक उत्सर्जन (ppm / µg/m³)",
         "historical_data_header": "ऐतिहासिक डेटा लॉग",
         "ai_header": "AI-संचालित ईंधन मिश्रण अनुकूलन",
-        "ai_subheader": "यह एक प्लेसहोल्डर मॉडल है। सेंसर डेटा पर एक वास्तविक मॉडल को प्रशिक्षित किया जाएगा।",
         "coal_input": "कोयला इनपुट (टन/घंटा)",
         "biogas_mix": "बायोगैस मिश्रण (%)",
         "optimize_button": "अनुकूलन चलाएँ",
@@ -171,7 +169,16 @@ with col1:
 # --- MQTT Client Setup with Queue ---
 BROKER = "broker.hivemq.com"
 PORT = 1883
-TOPIC = "proyek/iot/sl2_ignis"
+
+# MQTT Topics for different sensor locations (currently all use the same topic)
+MQTT_TOPICS = {
+    "Jharkhand": "proyek/iot/sl2_ignis",
+    "Chhattisgarh": "proyek/iot/sl2_ignis",  # Same topic for now
+    "Odisha": "proyek/iot/sl2_ignis"  # Same topic for now
+}
+
+# Global variable for current subscribed topic (to avoid session state in callbacks)
+current_subscribed_topic = "proyek/iot/sl2_ignis"
 
 # Initialize session state variables
 if 'mqtt_client_initialized' not in st.session_state:
@@ -198,7 +205,7 @@ DATA_FILE = Path(__file__).parent / "iot_history.csv"
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print("MQTT: Connected to Broker!")
-        client.subscribe(TOPIC)
+        client.subscribe(current_subscribed_topic)
     else:
         print(f"MQTT: Failed to connect, return code {rc}")
 
@@ -299,6 +306,31 @@ def append_to_history(new_data_row):
 def page_iot():
     st.header(T["iot_header"])
     st.subheader(T["iot_subheader"])
+    
+    # Sensor Location Selection
+    sensor_locations = ["Jharkhand", "Chhattisgarh", "Odisha"]
+    if 'selected_sensor' not in st.session_state:
+        st.session_state.selected_sensor = "Jharkhand"
+    
+    st.session_state.selected_sensor = st.selectbox(
+        "Select Sensor Location:",
+        options=sensor_locations,
+        index=sensor_locations.index(st.session_state.selected_sensor)
+    )
+    
+    # Handle topic change if sensor location changed
+    global current_subscribed_topic
+    new_topic = MQTT_TOPICS[st.session_state.selected_sensor]
+    if new_topic != current_subscribed_topic:
+        # Unsubscribe from old topic and subscribe to new one
+        if st.session_state.mqtt_client_instance:
+            st.session_state.mqtt_client_instance.unsubscribe(current_subscribed_topic)
+            st.session_state.mqtt_client_instance.subscribe(new_topic)
+            print(f"MQTT: Switched topic from {current_subscribed_topic} to {new_topic}")
+        current_subscribed_topic = new_topic
+    
+    st.info(f"📍 Currently monitoring: **{st.session_state.selected_sensor}**")
+    
     # Clarify which field is dust and which is gas
     st.markdown("**Dust** = PM2.5 (%) &nbsp;&nbsp;|&nbsp;&nbsp; **Gas** = CO2 (ppb)")
 
@@ -413,14 +445,14 @@ def page_iot():
             except Exception as e:
                 st.error(f"Failed to parse uploaded CSV: {e}")
 
-    # Rerun the page periodically to simulate live data updates
-    time.sleep(5) # Refresh every 5 seconds
-    st.rerun()
+    # Rerun the page periodically to simulate live data updates (only if still on this page)
+    if st.session_state.current_page == T["page_iot"]:
+        time.sleep(5) # Refresh every 5 seconds
+        st.rerun()
 
 # --- Page 2: AI Blend Optimizer ---
 def page_ai_optimizer():
     st.header(T["ai_header"])
-    st.info(T["ai_subheader"])
 
     # ---------------------------------------------------
     # 1. REAL COAL PLANT DATA (YOUR PROVIDED DATA)
@@ -591,19 +623,15 @@ page_gis_type = "primary" if st.session_state.current_page == T["page_gis"] else
 
 if st.sidebar.button(T["page_iot"], use_container_width=True, type=page_iot_type):
     st.session_state.current_page = T["page_iot"]
-    # We need to rerun to switch the page immediately if not already on it
-    if page_iot_type == "secondary":
-        st.rerun()
+    st.rerun()
 
 if st.sidebar.button(T["page_ai"], use_container_width=True, type=page_ai_type):
     st.session_state.current_page = T["page_ai"]
-    if page_ai_type == "secondary":
-        st.rerun()
+    st.rerun()
 
 if st.sidebar.button(T["page_gis"], use_container_width=True, type=page_gis_type):
     st.session_state.current_page = T["page_gis"]
-    if page_gis_type == "secondary":
-        st.rerun()
+    st.rerun()
 
 # --- Page Runner ---
 if st.session_state.current_page == T["page_iot"]:
