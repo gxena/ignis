@@ -175,7 +175,7 @@ if 'current_page' not in st.session_state:
 
 # Set the main app title and page header in the first column
 with col1:
-    st.title(T["app_title"])
+    pass
 
 # --- MQTT Client Setup with Queue ---
 BROKER = "broker.hivemq.com"
@@ -380,50 +380,52 @@ def page_iot():
     
     latest_data = st.session_state.latest_mqtt_data
     
-    # Display status alert as modern card and AI recommendation
-    with st.container():
-        st.markdown("""
-        <div style="border: 2px solid #ddd; border-radius: 10px; padding: 20px; background-color: #f9f9f9;">
-            <h3>System Status & AI Recommendations</h3>
-        """, unsafe_allow_html=True)
-        
-        # Status inside the card
-        st.markdown("**Status:**", unsafe_allow_html=True)
-        if latest_data['status'] == "DANGER":
-            st.markdown('<p style="color: red; font-size: 18px;">⚠️ DANGER</p>', unsafe_allow_html=True)
-        elif latest_data['status'] == "WARNING":
-            st.markdown('<p style="color: orange; font-size: 18px;">⚠️ WARNING</p>', unsafe_allow_html=True)
-        else:
-            st.markdown('<p style="color: green; font-size: 18px;">✅ NORMAL</p>', unsafe_allow_html=True)
-        
-        st.markdown("**AI Recommendations:**", unsafe_allow_html=True)
-        
-        # AI Recommendation based on sensor values
-        temp = latest_data['Temperature']
-        gas = latest_data['CO2']
-        dust = latest_data['PM2_5']
-        
-        recommendations = []
-        if temp > 150:
-            recommendations.append("🔥 High temperature detected! Reduce fuel input or increase cooling.")
-        elif temp < 50:
-            recommendations.append("❄️ Low temperature. Increase fuel or check insulation.")
-        
-        if gas > 1000:
-            recommendations.append("💨 High CO2 levels! Improve ventilation or reduce emissions.")
-        elif gas < 200:
-            recommendations.append("🌬️ Low CO2. Combustion may be inefficient.")
-        
-        if dust > 50:
-            recommendations.append("🌫️ High dust levels! Clean filters or reduce particulate sources.")
-        
-        if not recommendations:
-            recommendations.append("✅ All parameters within optimal range. System operating normally.")
-        
-        for rec in recommendations:
-            st.markdown(f"- {rec}")
-        
-        st.markdown("</div>", unsafe_allow_html=True)
+    # Display status and AI recommendation as two separate cards
+    status_col, rec_col = st.columns(2)
+    
+    with status_col:
+        with st.container():
+            st.markdown("""
+            <div style="border: 2px solid #ddd; border-radius: 10px; padding: 20px; background-color: #f9f9f9; text-align: center;">
+                <h3>Status</h3>
+            """, unsafe_allow_html=True)
+            if latest_data['status'] == "DANGER":
+                st.markdown('<p style="color: red; font-size: 18px;">⚠️ DANGER</p>', unsafe_allow_html=True)
+            elif latest_data['status'] == "WARNING":
+                st.markdown('<p style="color: orange; font-size: 18px;">⚠️ WARNING</p>', unsafe_allow_html=True)
+            else:
+                st.markdown('<p style="color: green; font-size: 18px;">✅ NORMAL</p>', unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
+    
+    with rec_col:
+        with st.container():
+            st.markdown("""
+            <div style="border: 2px solid #ddd; border-radius: 10px; padding: 20px; background-color: #f0f8ff;">
+                <h3>AI Recommendation</h3>
+            """, unsafe_allow_html=True)
+            # AI Recommendation based on sensor values
+            temp = latest_data['Temperature']
+            gas = latest_data['CO2']
+            dust = latest_data['PM2_5']
+            
+            recommendations = []
+            if temp > 25.6:
+                recommendations.append("🔥 High temperature detected! Reduce fuel input or increase cooling.")
+            elif temp < 16.4:
+                recommendations.append("❄️ Low temperature. Increase fuel or check insulation.")
+            
+            if gas > 100:
+                recommendations.append("💨 High CO2 levels! Improve ventilation or reduce emissions.")
+            
+            if dust > 50:
+                recommendations.append("🌫️ High dust levels! Clean filters or reduce particulate sources.")
+            
+            if not recommendations:
+                recommendations.append("✅ All parameters within optimal range. System operating normally.")
+            
+            for rec in recommendations:
+                st.markdown(f"- {rec}")
+            st.markdown("</div>", unsafe_allow_html=True)
     
     # Display current metrics
     st.divider()
@@ -464,7 +466,7 @@ def page_iot():
         st.line_chart(history_df[["PM2_5"]])
 
         st.subheader(T["historical_data_header"])
-        st.dataframe(st.session_state.iot_history, use_container_width=True, height=400)
+        st.dataframe(st.session_state.iot_history, use_container_width=True, height=400, key=f"history_{len(st.session_state.iot_history)}")
 
         # CSV importer placed below historical data table
         uploaded = st.file_uploader("Import history CSV", type=["csv"], accept_multiple_files=False)
@@ -542,7 +544,6 @@ def page_ai_optimizer():
     # ---------------------------------------------------
     # STREAMlit UI
     # ---------------------------------------------------
-    st.subheader("Biogas & Coal Blending Calculator")
     st.write("Calculate your emissions after blending biogas with coal")
 
     st.markdown("---")
@@ -557,7 +558,7 @@ def page_ai_optimizer():
     with col2:
         biogas_frac = st.slider("Biogas blending fraction:", 0.0, 1.0, 0.1)
 
-    st.markdown("### Baseline Emissions (tons/year)")
+    st.subheader("Baseline Emissions (tons/year)")
     col3, col4, col5, col6 = st.columns(4)
 
     with col3:
@@ -570,7 +571,7 @@ def page_ai_optimizer():
     with col6:
         SO2_in = st.number_input("SO2", min_value=0.0, value=800.0)
 
-    st.markdown("### Pollution Control Systems")
+    st.subheader("Pollution Control Systems")
 
     col7, col8 = st.columns(2)
 
@@ -623,12 +624,11 @@ def page_ai_optimizer():
         ]
     })
 
-    st.markdown("## Final Results")
+    st.subheader("Final Results")
 
     st.dataframe(df_out, use_container_width=True)
 
-    # Show key reduction indicators
-    st.markdown("## Summary")
+    st.subheader("Summary")
 
     for pol in ["TSP", "PM10", "PM2.5", "SO2"]:
         reduction = df_out.loc[df_out["Pollutant"] == pol, "Reduction (%)"].values[0]
