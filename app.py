@@ -440,6 +440,7 @@ def page_iot():
                         try:
                             st.session_state.iot_history.to_csv(DATA_FILE, index=False)
                             st.success('Import applied and saved')
+                            st.rerun()  # Refresh charts with new data
                         except Exception as e:
                             st.error(f'Import applied but failed to save: {e}')
             except Exception as e:
@@ -620,12 +621,15 @@ page_gis_type = "primary" if st.session_state.current_page == T["page_gis"] else
 
 if st.sidebar.button(T["page_iot"], use_container_width=True, type=page_iot_type):
     st.session_state.current_page = T["page_iot"]
+    st.rerun()
 
 if st.sidebar.button(T["page_ai"], use_container_width=True, type=page_ai_type):
     st.session_state.current_page = T["page_ai"]
+    st.rerun()
 
 if st.sidebar.button(T["page_gis"], use_container_width=True, type=page_gis_type):
     st.session_state.current_page = T["page_gis"]
+    st.rerun()
 
 # --- Page Runner ---
 if st.session_state.current_page == T["page_iot"]:
