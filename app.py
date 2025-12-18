@@ -729,7 +729,7 @@ def page_gis_map():
         folium.Marker(
             location=[ind["lat"], ind["lon"]],
             popup=f"Industry: {ind['name']}",
-            icon=folium.Icon(color="red", icon="industry")
+            icon=folium.Icon(color="red")
         ).add_to(m)
     
     # Add markers for coal mines
@@ -737,7 +737,7 @@ def page_gis_map():
         folium.Marker(
             location=[mine["lat"], mine["lon"]],
             popup=f"Coal Mine: {mine['name']}",
-            icon=folium.Icon(color="black", icon="mine")
+            icon=folium.Icon(color="black")
         ).add_to(m)
     
     # Add markers for biomass villages
@@ -745,7 +745,7 @@ def page_gis_map():
         folium.Marker(
             location=[village["lat"], village["lon"]],
             popup=f"Biomass Village: {village['name']}",
-            icon=folium.Icon(color="green", icon="leaf")
+            icon=folium.Icon(color="green")
         ).add_to(m)
     
     # Add markers for waste sites
@@ -753,7 +753,7 @@ def page_gis_map():
         folium.Marker(
             location=[waste["lat"], waste["lon"]],
             popup=f"Waste Site: {waste['name']}",
-            icon=folium.Icon(color="orange", icon="trash")
+            icon=folium.Icon(color="orange")
         ).add_to(m)
     
     # Add markers for pollution hotspots
@@ -761,7 +761,7 @@ def page_gis_map():
         folium.Marker(
             location=[hotspot["lat"], hotspot["lon"]],
             popup=f"Pollution Hotspot: {hotspot['name']}",
-            icon=folium.Icon(color="purple", icon="exclamation-triangle")
+            icon=folium.Icon(color="purple")
         ).add_to(m)
     
     # Add routes as polylines
