@@ -75,6 +75,11 @@ st.markdown("""
         line-height: 1.1;
         margin-bottom: 0.5rem;
     }
+
+    /* Align columns to bottom */
+    [data-testid="column"] {
+        align-items: flex-end !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -165,6 +170,9 @@ with col2:
         label_visibility="collapsed",
         index=0 if st.session_state.lang == "English" else 1
     )
+    
+    # Refresh page when language changes
+    st.rerun()
 
 # Get translated text
 T = LANGUAGES[st.session_state.lang]
@@ -370,22 +378,78 @@ def page_iot():
     
     latest_data = st.session_state.latest_mqtt_data
     
-    # Display status alert
-    if latest_data['status'] == "DANGER":
-        st.error(f"⚠️ WARNING: DANGEROUS STATUS DETECTED! Status: {latest_data['status']}")
-    elif latest_data['status'] == "WARNING":
-        st.warning(f"⚠️ Status: {latest_data['status']}")
-    else:
-        st.success(f"✅ Status: {latest_data['status']}")
-    
-    # Display current metrics
-    st.divider()
-    col1, col2, col3 = st.columns(3)
-
     # Calculate deltas for metrics. Handle initial state where history might be empty or short.
     prev_temp = st.session_state.iot_history.iloc[-2]['Temperature'] if len(st.session_state.iot_history) > 1 else latest_data['Temperature']
     prev_gas = st.session_state.iot_history.iloc[-2]['CO2'] if len(st.session_state.iot_history) > 1 else latest_data['CO2']
     prev_dust = st.session_state.iot_history.iloc[-2]['PM2_5'] if len(st.session_state.iot_history) > 1 else latest_data['PM2_5']
+    
+    # Display current metrics
+    st.divider()
+    
+    # Status Card and AI Recommendation in one row
+    status_col, ai_col = st.columns(2)
+    
+    with status_col:
+        # Modern card for status
+        st.markdown("""
+        <div style="border: 2px solid #ddd; border-radius: 10px; padding: 20px; background-color: #f9f9f9; text-align: center;">
+            <h3>System Status</h3>
+            <p style="font-size: 24px; font-weight: bold; color: {};">{}</p>
+        </div>
+        """.format(
+            "red" if latest_data['status'] == "DANGER" else "orange" if latest_data['status'] == "WARNING" else "green",
+            latest_data['status']
+        ), unsafe_allow_html=True)
+    
+    with ai_col:
+        # AI Recommendation based on data
+        recommendations = []
+        
+        # Temperature check
+        if latest_data['Temperature'] > 80:
+            recommendations.append("🔥 High temperature detected - Consider cooling measures")
+        elif latest_data['Temperature'] < 20:
+            recommendations.append("❄️ Low temperature - Monitor heating")
+        
+        # Gas (CO2) check
+        if latest_data['CO2'] > 1000:
+            recommendations.append("💨 High CO2 levels - Improve ventilation")
+        
+        # Dust (PM2.5) check
+        if latest_data['PM2_5'] > 50:
+            recommendations.append("🌫️ High dust levels - Check filtration system")
+        
+        # Trend analysis
+        if len(st.session_state.iot_history) > 1:
+            temp_change = latest_data['Temperature'] - prev_temp
+            gas_change = latest_data['CO2'] - prev_gas
+            dust_change = latest_data['PM2_5'] - prev_dust
+            
+            if temp_change > 5:
+                recommendations.append("📈 Temperature rising rapidly")
+            elif temp_change < -5:
+                recommendations.append("📉 Temperature dropping rapidly")
+            
+            if gas_change > 100:
+                recommendations.append("📈 CO2 increasing - Check emissions")
+            
+            if dust_change > 10:
+                recommendations.append("📈 Dust levels rising - Inspect equipment")
+        
+        if not recommendations:
+            recommendations.append("✅ All parameters within normal range")
+        
+        st.markdown("""
+        <div style="border: 2px solid #ddd; border-radius: 10px; padding: 20px; background-color: #f0f8ff; text-align: center;">
+            <h3>AI Recommendations</h3>
+            <ul style="text-align: left;">
+        """ + "".join(f"<li>{rec}</li>" for rec in recommendations) + """
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Display current metrics below
+    col1, col2, col3 = st.columns(3)
 
     col1.metric(T["current_temp"], f"{latest_data['Temperature']:.1f} °C", f"{latest_data['Temperature'] - prev_temp:+.1f}")
     col2.metric(T["current_co2"], f"{latest_data['CO2']:.1f} ppb", f"{latest_data['CO2'] - prev_gas:+.1f}") # Air quality (gas in ppb)
