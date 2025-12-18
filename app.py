@@ -733,7 +733,7 @@ def page_gis_map():
         with open(kml_file, 'r', encoding='utf-8') as f:
             k.from_string(f.read())
         for feature in k.features():
-            for subfeature in feature.features():
+            for subfeature in feature.features:
                 if isinstance(subfeature, Placemark) and subfeature.geometry:
                     geom = subfeature.geometry
                     if isinstance(geom, Point):
