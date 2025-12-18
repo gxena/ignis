@@ -75,6 +75,12 @@ st.markdown("""
         line-height: 1.1;
         margin-bottom: 0.5rem;
     }
+
+    /* Align columns to bottom */
+    [data-testid="column"] {
+        align-items: flex-end !important;
+        min-height: 80px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -175,7 +181,8 @@ if 'current_page' not in st.session_state:
 
 # Set the main app title and page header in the first column
 with col1:
-    pass
+    if st.session_state.current_page == "iot":
+        st.subheader(T["iot_subheader"])
 
 # --- MQTT Client Setup with Queue ---
 BROKER = "broker.hivemq.com"
@@ -314,7 +321,6 @@ def append_to_history(new_data_row):
 # --- Page 1: IoT Sensor Dashboard ---
 def page_iot():
     st.header(T["iot_header"])
-    st.subheader(T["iot_subheader"])
     # Sensor Location Selection and Monitoring in one row
     st.markdown("""
     <style>
@@ -387,7 +393,6 @@ def page_iot():
         with st.container():
             st.markdown("""
             <div style="border: 2px solid #ddd; border-radius: 10px; padding: 20px; background-color: #f9f9f9; text-align: center;">
-                <h3>Status</h3>
             """, unsafe_allow_html=True)
             if latest_data['status'] == "DANGER":
                 st.markdown('<p style="color: red; font-size: 18px;">⚠️ DANGER</p>', unsafe_allow_html=True)
@@ -401,7 +406,6 @@ def page_iot():
         with st.container():
             st.markdown("""
             <div style="border: 2px solid #ddd; border-radius: 10px; padding: 20px; background-color: #f0f8ff;">
-                <h3>AI Recommendation</h3>
             """, unsafe_allow_html=True)
             # AI Recommendation based on sensor values
             temp = latest_data['Temperature']
