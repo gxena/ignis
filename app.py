@@ -169,6 +169,10 @@ with col2:
 # Get translated text
 T = LANGUAGES[st.session_state.lang]
 
+# Initialize current_page if not set
+if 'current_page' not in st.session_state:
+    st.session_state.current_page = T["page_iot"]
+
 # Set the main app title and page header in the first column
 with col1:
     st.title(T["app_title"])
@@ -666,8 +670,6 @@ def page_gis_map():
            )
 
 # --- Page Navigation (Replaced with Sidebar) ---
-if 'current_page' not in st.session_state:
-    st.session_state.current_page = "iot"
 
 st.sidebar.title("Navigation")
 
