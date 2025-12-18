@@ -11,6 +11,7 @@ import altair as alt
 import paho.mqtt.client as mqtt
 import json
 import threading # Required for mqtt client in background thread
+import xml.etree.ElementTree as ET
 
 # For GIS map
 import folium
