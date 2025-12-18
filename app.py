@@ -12,6 +12,10 @@ import paho.mqtt.client as mqtt
 import json
 import threading # Required for mqtt client in background thread
 
+# For GIS map
+import folium
+from streamlit_folium import st_folium
+
 # --- Configuration ---
 st.set_page_config(
     page_title="HybridFuel Dashboard",
@@ -211,7 +215,7 @@ if 'mqtt_client_initialized' not in st.session_state:
         "Temperature": 0.0,
           "CO2": 0.0, 
           "PM2_5": 0, 
-        "status": "UNKNOWN"
+        "status": "NOT FOUND"
     }
 
 # Get queue reference (thread-safe, no session state access needed)
@@ -674,29 +678,123 @@ def page_ai_optimizer():
 
 # --- Page 3: GIS Feedstock Map ---
 def page_gis_map():
-    st.info(T["gis_subheader"])
-    st.write(T["gis_placeholder"])
-
-    # Create a simple DataFrame for points in India
-    # Coordinates for major cities
-    map_data = pd.DataFrame(
-        {
-            "lat": [19.0760, 28.6139, 13.0827, 22.5726, 20.5937],
-            "lon": [72.8777, 77.2090, 80.2707, 88.3639, 78.9629],
-            "size": [30, 30, 30, 30, 100], # Center point is bigger
-            "color": [[255, 0, 0, 160], [0, 255, 0, 160], [0, 0, 255, 160], [255, 255, 0, 160], [0, 0, 0, 100]]
-        }
-    )
-
-    # Display the map using st.map()
-    st.map(map_data,
-           latitude=20.5937,
-           longitude=78.9629,
-           zoom=4,
-           use_container_width=True,
-           size="size",
-           color="color"
-           )
+    st.write("Interactive GIS Feedstock & Logistics Dashboard")
+    st.write("Map showing industries, coal mines, biomass villages, waste sites, pollution hotspots, and transport routes.")
+    
+    # Sample data - replace with your actual geocoded data from Google My Maps
+    # Industries (power plants)
+    industries = [
+        {"name": "North Karanpura STPP", "lat": 23.8, "lon": 85.5},
+        {"name": "Patratu STPP", "lat": 23.7, "lon": 85.3},
+        {"name": "Tenughat TPS", "lat": 23.6, "lon": 85.1},
+    ]
+    
+    # Coal mines
+    coal_mines = [
+        {"name": "Coal Mine 1", "lat": 23.9, "lon": 85.6},
+        {"name": "Coal Mine 2", "lat": 23.5, "lon": 85.2},
+    ]
+    
+    # Biomass villages
+    biomass_villages = [
+        {"name": "Biomass Village A", "lat": 23.4, "lon": 85.0},
+        {"name": "Biomass Village B", "lat": 23.3, "lon": 84.9},
+    ]
+    
+    # Waste sites
+    waste_sites = [
+        {"name": "Waste Site 1", "lat": 23.2, "lon": 84.8},
+    ]
+    
+    # Pollution hotspots
+    pollution_hotspots = [
+        {"name": "Hotspot 1", "lat": 23.1, "lon": 84.7},
+    ]
+    
+    # Transport routes (lines connecting sources to destinations)
+    routes = [
+        {"from": biomass_villages[0], "to": industries[0], "color": "green"},
+        {"from": biomass_villages[1], "to": industries[1], "color": "blue"},
+        {"from": coal_mines[0], "to": industries[0], "color": "black"},
+    ]
+    
+    # Create folium map
+    import folium
+    from streamlit_folium import st_folium
+    
+    m = folium.Map(location=[23.5, 85.0], zoom_start=8)
+    
+    # Add markers for industries
+    for ind in industries:
+        folium.Marker(
+            location=[ind["lat"], ind["lon"]],
+            popup=f"Industry: {ind['name']}",
+            icon=folium.Icon(color="red", icon="industry")
+        ).add_to(m)
+    
+    # Add markers for coal mines
+    for mine in coal_mines:
+        folium.Marker(
+            location=[mine["lat"], mine["lon"]],
+            popup=f"Coal Mine: {mine['name']}",
+            icon=folium.Icon(color="black", icon="mine")
+        ).add_to(m)
+    
+    # Add markers for biomass villages
+    for village in biomass_villages:
+        folium.Marker(
+            location=[village["lat"], village["lon"]],
+            popup=f"Biomass Village: {village['name']}",
+            icon=folium.Icon(color="green", icon="leaf")
+        ).add_to(m)
+    
+    # Add markers for waste sites
+    for waste in waste_sites:
+        folium.Marker(
+            location=[waste["lat"], waste["lon"]],
+            popup=f"Waste Site: {waste['name']}",
+            icon=folium.Icon(color="orange", icon="trash")
+        ).add_to(m)
+    
+    # Add markers for pollution hotspots
+    for hotspot in pollution_hotspots:
+        folium.Marker(
+            location=[hotspot["lat"], hotspot["lon"]],
+            popup=f"Pollution Hotspot: {hotspot['name']}",
+            icon=folium.Icon(color="purple", icon="exclamation-triangle")
+        ).add_to(m)
+    
+    # Add routes as polylines
+    for route in routes:
+        folium.PolyLine(
+            locations=[[route["from"]["lat"], route["from"]["lon"]], [route["to"]["lat"], route["to"]["lon"]]],
+            color=route["color"],
+            weight=3,
+            popup=f"Route from {route['from']['name']} to {route['to']['name']}"
+        ).add_to(m)
+    
+    # Display the map
+    st_folium(m, width=700, height=500)
+    
+    st.write("### Routing Logic")
+    st.write("To automate routing, you can integrate APIs like OpenRouteService or Google Directions API.")
+    st.write("For example, select a source and destination to calculate the optimal route:")
+    
+    # Simple routing demo (placeholder)
+    source_options = [v["name"] for v in biomass_villages + coal_mines]
+    dest_options = [i["name"] for i in industries]
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        source = st.selectbox("Select Source", source_options)
+    with col2:
+        dest = st.selectbox("Select Destination", dest_options)
+    
+    if st.button("Calculate Route"):
+        # Placeholder for API call
+        st.write(f"Calculating route from {source} to {dest}...")
+        st.write("Distance: ~50 km, Time: ~1.5 hours (example)")
+        # In real implementation, call routing API here
 
 # --- Page Navigation (Replaced with Sidebar) ---
 
