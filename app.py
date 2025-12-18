@@ -304,7 +304,7 @@ def append_to_history(new_data_row):
 
 # --- Page 1: IoT Sensor Dashboard ---
 def page_iot():
-    st.header(T["iot_header"])
+    # st.header(T["iot_header"])
     st.subheader(T["iot_subheader"])
     
     # Sensor Location Selection
@@ -445,14 +445,11 @@ def page_iot():
             except Exception as e:
                 st.error(f"Failed to parse uploaded CSV: {e}")
 
-    # Rerun the page periodically to simulate live data updates (only if still on this page)
-    if st.session_state.current_page == T["page_iot"]:
-        time.sleep(5) # Refresh every 5 seconds
-        st.rerun()
+    # Removed periodic rerun to allow proper navigation
 
 # --- Page 2: AI Blend Optimizer ---
 def page_ai_optimizer():
-    st.header(T["ai_header"])
+    # st.header(T["ai_header"])
 
     # ---------------------------------------------------
     # 1. REAL COAL PLANT DATA (YOUR PROVIDED DATA)
@@ -585,7 +582,7 @@ def page_ai_optimizer():
 
 # --- Page 3: GIS Feedstock Map ---
 def page_gis_map():
-    st.header(T["gis_header"])
+    # st.header(T["gis_header"])
     st.info(T["gis_subheader"])
     st.write(T["gis_placeholder"])
 
@@ -623,15 +620,12 @@ page_gis_type = "primary" if st.session_state.current_page == T["page_gis"] else
 
 if st.sidebar.button(T["page_iot"], use_container_width=True, type=page_iot_type):
     st.session_state.current_page = T["page_iot"]
-    st.rerun()
 
 if st.sidebar.button(T["page_ai"], use_container_width=True, type=page_ai_type):
     st.session_state.current_page = T["page_ai"]
-    st.rerun()
 
 if st.sidebar.button(T["page_gis"], use_container_width=True, type=page_gis_type):
     st.session_state.current_page = T["page_gis"]
-    st.rerun()
 
 # --- Page Runner ---
 if st.session_state.current_page == T["page_iot"]:
