@@ -504,7 +504,7 @@ def page_iot():
         st.line_chart(history_df[["PM2_5"]])
 
         st.subheader(T["historical_data_header"])
-        st.dataframe(st.session_state.iot_history, use_container_width=True, height=400)
+        st.dataframe(st.session_state.iot_history.sort_values('timestamp', ascending=False), use_container_width=True, height=400)
 
         # CSV importer placed below historical data table
         uploaded = st.file_uploader("Import history CSV", type=["csv"], accept_multiple_files=False)
