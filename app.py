@@ -392,70 +392,78 @@ def page_iot():
     
     col1, col2 = st.columns(2)
 
-    # =======================
+    # =====================
     # STATUS CARD
-    # =======================
+    # =====================
+    status = latest_data["status"]
+
+    if status == "DANGER":
+        status_color = "#ff4d4f"
+        status_icon = "⚠️"
+    elif status == "WARNING":
+        status_color = "#faad14"
+        status_icon = "⚠️"
+    else:
+        status_color = "#52c41a"
+        status_icon = "✅"
+
     with col1:
-        st.markdown("""
+        st.markdown(f"""
         <div style="
-            border: 2px solid #ddd;
+            border: 2px solid {status_color};
             border-radius: 12px;
             padding: 20px;
-            background-color: #f9f9f9;
-            height: 100%;
+            background-color: #ffffff;
         ">
             <h3>System Status</h3>
+            <p style="
+                color:{status_color};
+                font-size:20px;
+                font-weight:bold;
+                margin-top:10px;
+            ">
+                {status_icon} {status}
+            </p>
+        </div>
         """, unsafe_allow_html=True)
 
-        if latest_data['status'] == "DANGER":
-            st.markdown('<p style="color:red; font-size:18px;">⚠️ <b>DANGER</b></p>', unsafe_allow_html=True)
-        elif latest_data['status'] == "WARNING":
-            st.markdown('<p style="color:orange; font-size:18px;">⚠️ <b>WARNING</b></p>', unsafe_allow_html=True)
-        else:
-            st.markdown('<p style="color:green; font-size:18px;">✅ <b>NORMAL</b></p>', unsafe_allow_html=True)
+    temp = latest_data['Temperature']
+    gas = latest_data['CO2']
+    dust = latest_data['PM2_5']
 
-        st.markdown("</div>", unsafe_allow_html=True)
+    recommendations = []
 
+    if temp > 25.6:
+        recommendations.append("🔥 High temperature detected. Reduce fuel input or increase cooling.")
+    elif temp < 16.4:
+        recommendations.append("❄️ Low temperature. Increase fuel or check insulation.")
 
-    # =======================
-    # RECOMMENDATION CARD
-    # =======================
+    if gas > 100:
+        recommendations.append("💨 High CO₂ levels. Improve ventilation or reduce emissions.")
+
+    if dust > 50:
+        recommendations.append("🌫️ High dust levels. Clean filters or reduce particulate sources.")
+
+    if not recommendations:
+        recommendations.append("✅ All parameters within optimal range. System operating normally.")
+
+    rec_html = "".join(f"<li>{r}</li>" for r in recommendations)
+
     with col2:
-        st.markdown("""
+        st.markdown(f"""
         <div style="
             border: 2px solid #ddd;
             border-radius: 12px;
             padding: 20px;
-            background-color: #f9f9f9;
-            height: 100%;
+            background-color: #ffffff;
         ">
             <h3>AI Recommendations</h3>
+            <ul style="margin-top:10px;">
+                {rec_html}
+            </ul>
+        </div>
         """, unsafe_allow_html=True)
 
-        temp = latest_data['Temperature']
-        gas = latest_data['CO2']
-        dust = latest_data['PM2_5']
-
-        recommendations = []
-
-        if temp > 25.6:
-            recommendations.append("🔥 High temperature detected. Reduce fuel input or increase cooling.")
-        elif temp < 16.4:
-            recommendations.append("❄️ Low temperature. Increase fuel or check insulation.")
-
-        if gas > 100:
-            recommendations.append("💨 High CO₂ levels. Improve ventilation or reduce emissions.")
-
-        if dust > 50:
-            recommendations.append("🌫️ High dust levels. Clean filters or reduce particulate sources.")
-
-        if not recommendations:
-            recommendations.append("✅ All parameters within optimal range. System operating normally.")
-
-        for rec in recommendations:
-            st.markdown(f"- {rec}")
-
-        st.markdown("</div>", unsafe_allow_html=True)
 
     # Display current metrics
     st.divider()
