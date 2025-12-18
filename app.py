@@ -84,14 +84,14 @@ LANGUAGES = {
     "English": {
         "app_title": "HybridFuel: Biogas-Coal Optimization System",
         "page_iot": "IoT Sensor Dashboard",
-        "page_ai": "AI Blend Optimizer",
+        "page_ai": "Blend Optimizer",
         "page_gis": "GIS Feedstock Map",
         "iot_header": "Real-time Combustion Monitoring",
-        "iot_subheader": "Live data from IoT sensors in the combustion system via MQTT.",
+        "iot_subheader": "Live data from IoT sensors (via MQTT)",
         "current_temp": "Current Temperature",
-        "current_co2": "Current CO2",
+        "current_co2": "Current CO2 (Gas)",
         
-        "current_pm25": "Current PM2.5",
+        "current_pm25": "Current PM2.5 (Dust)",
         "historical_temp": "Historical Temperature (°C)",
         "historical_emissions": "Historical Emissions (ppm / µg/m³)",
         "historical_data_header": "Historical Data Log",
@@ -162,9 +162,16 @@ with col2:
 # Get translated text
 T = LANGUAGES[st.session_state.lang]
 
-# Set the main app title in the first column
-# with col1:
-#     st.title(T["app_title"])
+# Set the main app title and page header in the first column
+with col1:
+    # st.title(T["app_title"])
+    # Page header based on current page
+    if st.session_state.current_page == T["page_iot"]:
+        st.header(T["iot_header"])
+    elif st.session_state.current_page == T["page_ai"]:
+        st.header(T["ai_header"])
+    elif st.session_state.current_page == T["page_gis"]:
+        st.header(T["gis_header"])
 
 # --- MQTT Client Setup with Queue ---
 BROKER = "broker.hivemq.com"
@@ -298,25 +305,26 @@ def append_to_history(new_data_row):
         [st.session_state.iot_history, new_df_row],
         ignore_index=True
     )
-    # Keep only the last 100 entries
-    if len(st.session_state.iot_history) > 100:
-        st.session_state.iot_history = st.session_state.iot_history.tail(100)
+    # Unlimited history
 
 # --- Page 1: IoT Sensor Dashboard ---
 def page_iot():
-    st.header(T["iot_header"])
-    st.subheader(T["iot_subheader"])
+    # Sensor Location Selection and Monitoring in one row
+    col_sel, col_mon = st.columns([1, 1])
     
-    # Sensor Location Selection
-    sensor_locations = ["Jharkhand", "Chhattisgarh", "Odisha"]
-    if 'selected_sensor' not in st.session_state:
-        st.session_state.selected_sensor = "Jharkhand"
+    with col_sel:
+        sensor_locations = ["Jharkhand", "Chhattisgarh", "Odisha"]
+        if 'selected_sensor' not in st.session_state:
+            st.session_state.selected_sensor = "Jharkhand"
+        
+        st.session_state.selected_sensor = st.selectbox(
+            "Select Sensor Location:",
+            options=sensor_locations,
+            index=sensor_locations.index(st.session_state.selected_sensor)
+        )
     
-    st.session_state.selected_sensor = st.selectbox(
-        "Select Sensor Location:",
-        options=sensor_locations,
-        index=sensor_locations.index(st.session_state.selected_sensor)
-    )
+    with col_mon:
+        st.info(f"📍 Currently monitoring: **{st.session_state.selected_sensor}**")
     
     # Handle topic change if sensor location changed
     global current_subscribed_topic
@@ -329,11 +337,6 @@ def page_iot():
             print(f"MQTT: Switched topic from {current_subscribed_topic} to {new_topic}")
         current_subscribed_topic = new_topic
     
-    st.info(f"📍 Currently monitoring: **{st.session_state.selected_sensor}**")
-    
-    # Clarify which field is dust and which is gas
-    st.markdown("**Dust** = PM2.5 (%) &nbsp;&nbsp;|&nbsp;&nbsp; **Gas** = CO2 (ppb)")
-
     # (Import moved below historical data table)
 
     # Process all pending messages from MQTT queue
@@ -349,9 +352,7 @@ def page_iot():
                     [st.session_state.iot_history, new_df_row],
                     ignore_index=True
                 )
-                # Keep only the last 100 entries
-                if len(st.session_state.iot_history) > 100:
-                    st.session_state.iot_history = st.session_state.iot_history.tail(100)
+                # Unlimited history
                 # Persist history to CSV so data survives restarts
                 try:
                     st.session_state.iot_history.to_csv(DATA_FILE, index=False)
@@ -409,7 +410,7 @@ def page_iot():
         st.line_chart(history_df[["PM2_5"]])
 
         st.subheader(T["historical_data_header"])
-        st.dataframe(history_df.tail(20), use_container_width=True)
+        st.dataframe(st.session_state.iot_history, use_container_width=True, height=400)
 
         # CSV importer placed below historical data table
         uploaded = st.file_uploader("Import history CSV", type=["csv"], accept_multiple_files=False)
