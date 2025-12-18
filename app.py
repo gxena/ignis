@@ -733,15 +733,16 @@ def page_gis_map():
         with open(kml_file, 'r', encoding='utf-8') as f:
             k.from_string(f.read())
         for feature in k.features():
-            for subfeature in feature.features:
-                if isinstance(subfeature, Placemark) and subfeature.geometry:
-                    geom = subfeature.geometry
-                    if isinstance(geom, Point):
-                        lon, lat, alt = geom.coords[0]  # Note: KML is lon, lat
-                        folium.Marker(
-                            location=[lat, lon],
-                            popup=subfeature.name
-                        ).add_to(m)
+            for folder in feature.features:
+                for subfeature in folder.features:
+                    if isinstance(subfeature, Placemark) and subfeature.geometry:
+                        geom = subfeature.geometry
+                        if isinstance(geom, Point):
+                            lon, lat, alt = geom.coords[0]  # Note: KML is lon, lat
+                            folium.Marker(
+                                location=[lat, lon],
+                                popup=subfeature.name
+                            ).add_to(m)
     except Exception as e:
         st.error(f"Error loading KML: {e}")
     
