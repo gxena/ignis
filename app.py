@@ -16,7 +16,7 @@ import xml.etree.ElementTree as ET
 # For GIS map
 import folium
 from streamlit_folium import st_folium, folium_static
-from fastkml import kml, Placemark, Point, Folder
+import xml.etree.ElementTree as ET
 
 # --- Configuration ---
 st.set_page_config(
@@ -730,24 +730,22 @@ def page_gis_map():
     # Load KML file
     kml_file = 'Only 2 checked KORBA (1).kml'
     try:
-        k = kml.KML()
-        with open(kml_file, 'r', encoding='utf-8') as f:
-            k.from_string(f.read())
-        for feature in k.features():
-            for folder in feature.features():
-                if isinstance(folder, Folder):
-                    for subfeature in folder.features():
-                        if isinstance(subfeature, Placemark) and subfeature.geometry:
-                            geom = subfeature.geometry
-                            if isinstance(geom, Point):
-                                lon, lat, alt = geom.coords[0]  # Note: KML is lon, lat
-                                folium.Marker(
-                                    location=[lat, lon],
-                                    popup=subfeature.name
-                                ).add_to(m)
+        tree = ET.parse(kml_file)
+        root = tree.getroot()
+        ns = {'kml': 'http://www.opengis.net/kml/2.2'}
+        for placemark in root.findall('.//kml:Placemark', ns):
+            name_elem = placemark.find('kml:name', ns)
+            name = name_elem.text if name_elem is not None else 'Unknown'
+            point = placemark.find('.//kml:Point', ns)
+            if point is not None:
+                coord_elem = point.find('kml:coordinates', ns)
+                if coord_elem is not None and coord_elem.text:
+                    coords = coord_elem.text.strip().split(',')
+                    if len(coords) >= 2:
+                        lon, lat = float(coords[0]), float(coords[1])
+                        folium.Marker(location=[lat, lon], popup=name).add_to(m)
     except Exception as e:
         st.error(f"Error loading KML: {e}")
-        print(k.from_string(f.read()))
     
     # # Add markers for industries
     # for ind in industries:
