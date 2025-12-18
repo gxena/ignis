@@ -111,33 +111,40 @@ LANGUAGES = {
         "gis_placeholder": "Simple map of India. Full GIS data will be integrated later.",
     },
     "Hindi (हिन्दी)": {
-        "app_title": "हाइब्रिडफ्यूल एआई: बायोगैस-कोयला अनुकूलन प्रणाली",
+        "app_title": "HybridFuel: बायोगैस-कोयला अनुकूलन प्रणाली",
         "page_iot": "IoT सेंसर डैशबोर्ड",
-        "page_ai": "AI मिश्रण ऑप्टिमाइज़र",
+        "page_ai": "ब्लेंड ऑप्टिमाइज़र",
         "page_gis": "GIS फीडस्टॉक मानचित्र",
+
         "iot_header": "वास्तविक समय दहन निगरानी",
-        "iot_subheader": "दहन प्रणाली में IoT सेंसर से लाइव डेटा MQTT के माध्यम से।",
+        "iot_subheader": "IoT सेंसर से लाइव डेटा (MQTT के माध्यम से)",
+
         "current_temp": "वर्तमान तापमान",
-        "current_co2": "वर्तमान CO2",
-        
-        "current_pm25": "वर्तमान PM2.5",
+        "current_co2": "वर्तमान CO2 (गैस)",
+        "current_pm25": "वर्तमान PM2.5 (धूल)",
+
         "historical_temp": "ऐतिहासिक तापमान (°C)",
         "historical_emissions": "ऐतिहासिक उत्सर्जन (ppm / µg/m³)",
         "historical_data_header": "ऐतिहासिक डेटा लॉग",
-        "ai_header": "AI-संचालित ईंधन मिश्रण अनुकूलन",
+
+        "ai_header": "ईंधन मिश्रण अनुकूलन",
         "coal_input": "कोयला इनपुट (टन/घंटा)",
         "biogas_mix": "बायोगैस मिश्रण (%)",
         "optimize_button": "अनुकूलन चलाएँ",
+
         "ai_recommendation": "AI सिफ़ारिश",
-        "pred_power": "अनुमानित बिजली उत्पादन (MW)",
-        "pred_reduction": "अनुमानित PM2.5 कमी",
+        "pred_power": "अनुमानित विद्युत उत्पादन (MW)",
+        "pred_reduction": "अनुमानित PM2.5 में कमी",
+
         "safety_check": "सुरक्षा और व्यवहार्यता जांच",
-        "safety_ok": "✅ बायोगैस प्रतिशत सुरक्षित परिचालन मापदंडों के भीतर है।",
-        "safety_warn": "⚠️ उच्च बायोगैस प्रतिशत (>40%) के लिए उपकरण रेट्रोफिटिंग की आवश्यकता हो सकती है। सावधानी से आगे बढ़ें।",
+        "safety_ok": "✅ बायोगैस प्रतिशत सुरक्षित परिचालन सीमा के भीतर है।",
+        "safety_warn": "⚠️ उच्च बायोगैस प्रतिशत (>40%) के लिए उपकरणों में संशोधन आवश्यक हो सकता है। सावधानी से आगे बढ़ें।",
+
         "optimal_blend_is": "अधिकतम दक्षता और न्यूनतम प्रदूषण के लिए इष्टतम मिश्रण:",
+
         "gis_header": "GIS फीडस्टॉक और लॉजिस्टिक्स डैशबोर्ड",
-        "gis_subheader": "यह डैशबोर्ड क्षेत्रीय अपशिष्ट फीडस्टॉक स्रोतों, बायोगैस उत्पादन क्षमता और औद्योगिक ईंधन की मांग को मैप करेगा।",
-        "gis_placeholder": "भारत का सरल नक्शा। पूर्ण GIS डेटा बाद में एकीकृत किया जाएगा।",
+        "gis_subheader": "यह डैशबोर्ड क्षेत्रीय अपशिष्ट फीडस्टॉक स्रोतों, बायोगैस उत्पादन क्षमता और औद्योगिक ईंधन मांग को मैप करेगा।",
+        "gis_placeholder": "भारत का सरल मानचित्र। पूर्ण GIS डेटा बाद में एकीकृत किया जाएगा।",
     }
 }
 
@@ -164,13 +171,13 @@ T = LANGUAGES[st.session_state.lang]
 
 # Set the main app title and page header in the first column
 with col1:
-    # st.title(T["app_title"])
+    st.title(T["app_title"])
     # Page header based on current page
-    if st.session_state.current_page == T["page_iot"]:
+    if st.session_state.current_page == "iot":
         st.header(T["iot_header"])
-    elif st.session_state.current_page == T["page_ai"]:
+    elif st.session_state.current_page == "ai":
         st.header(T["ai_header"])
-    elif st.session_state.current_page == T["page_gis"]:
+    elif st.session_state.current_page == "gis":
         st.header(T["gis_header"])
 
 # --- MQTT Client Setup with Queue ---
@@ -310,21 +317,32 @@ def append_to_history(new_data_row):
 # --- Page 1: IoT Sensor Dashboard ---
 def page_iot():
     # Sensor Location Selection and Monitoring in one row
-    col_sel, col_mon = st.columns([1, 1])
+    st.markdown("""
+    <style>
+    .sensor-row {
+        display: flex;
+        align-items: flex-end;
+        gap: 1rem;
+    }
+    </style>
+    """, unsafe_allow_html=True)
     
-    with col_sel:
-        sensor_locations = ["Jharkhand", "Chhattisgarh", "Odisha"]
-        if 'selected_sensor' not in st.session_state:
-            st.session_state.selected_sensor = "Jharkhand"
+    with st.container():
+        col_sel, col_mon = st.columns([1, 1])
         
-        st.session_state.selected_sensor = st.selectbox(
-            "Select Sensor Location:",
-            options=sensor_locations,
-            index=sensor_locations.index(st.session_state.selected_sensor)
-        )
-    
-    with col_mon:
-        st.info(f"📍 Currently monitoring: **{st.session_state.selected_sensor}**")
+        with col_sel:
+            sensor_locations = ["Jharkhand", "Chhattisgarh", "Odisha"]
+            if 'selected_sensor' not in st.session_state:
+                st.session_state.selected_sensor = "Jharkhand"
+            
+            st.session_state.selected_sensor = st.selectbox(
+                "Select Sensor Location:",
+                options=sensor_locations,
+                index=sensor_locations.index(st.session_state.selected_sensor)
+            )
+        
+        with col_mon:
+            st.info(f"📍 Currently monitoring: **{st.session_state.selected_sensor}**")
     
     # Handle topic change if sensor location changed
     global current_subscribed_topic
@@ -363,13 +381,54 @@ def page_iot():
     
     latest_data = st.session_state.latest_mqtt_data
     
-    # Display status alert
-    if latest_data['status'] == "DANGER":
-        st.error(f"⚠️ WARNING: DANGEROUS STATUS DETECTED! Status: {latest_data['status']}")
-    elif latest_data['status'] == "WARNING":
-        st.warning(f"⚠️ Status: {latest_data['status']}")
-    else:
-        st.success(f"✅ Status: {latest_data['status']}")
+    # Display status alert as modern card and AI recommendation
+    status_col, rec_col = st.columns([1, 2])
+    
+    with status_col:
+        with st.container():
+            st.markdown("""
+            <div style="border: 2px solid #ddd; border-radius: 10px; padding: 20px; background-color: #f9f9f9; text-align: center;">
+                <h3>System Status</h3>
+            """, unsafe_allow_html=True)
+            if latest_data['status'] == "DANGER":
+                st.markdown('<p style="color: red; font-size: 24px;">⚠️ DANGER</p>', unsafe_allow_html=True)
+            elif latest_data['status'] == "WARNING":
+                st.markdown('<p style="color: orange; font-size: 24px;">⚠️ WARNING</p>', unsafe_allow_html=True)
+            else:
+                st.markdown('<p style="color: green; font-size: 24px;">✅ NORMAL</p>', unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
+    
+    with rec_col:
+        # AI Recommendation based on sensor values
+        temp = latest_data['Temperature']
+        gas = latest_data['CO2']
+        dust = latest_data['PM2_5']
+        
+        recommendations = []
+        if temp > 150:
+            recommendations.append("🔥 High temperature detected! Reduce fuel input or increase cooling.")
+        elif temp < 50:
+            recommendations.append("❄️ Low temperature. Increase fuel or check insulation.")
+        
+        if gas > 1000:
+            recommendations.append("💨 High CO2 levels! Improve ventilation or reduce emissions.")
+        elif gas < 200:
+            recommendations.append("🌬️ Low CO2. Combustion may be inefficient.")
+        
+        if dust > 50:
+            recommendations.append("🌫️ High dust levels! Clean filters or reduce particulate sources.")
+        
+        if not recommendations:
+            recommendations.append("✅ All parameters within optimal range. System operating normally.")
+        
+        with st.container():
+            st.markdown("""
+            <div style="border: 2px solid #ddd; border-radius: 10px; padding: 20px; background-color: #f0f8ff;">
+                <h3>🤖 AI Recommendations</h3>
+            """, unsafe_allow_html=True)
+            for rec in recommendations:
+                st.markdown(f"- {rec}")
+            st.markdown("</div>", unsafe_allow_html=True)
     
     # Display current metrics
     st.divider()
@@ -451,8 +510,6 @@ def page_iot():
 
 # --- Page 2: AI Blend Optimizer ---
 def page_ai_optimizer():
-    st.header(T["ai_header"])
-
     # ---------------------------------------------------
     # 1. REAL COAL PLANT DATA (YOUR PROVIDED DATA)
     # ---------------------------------------------------
@@ -584,7 +641,6 @@ def page_ai_optimizer():
 
 # --- Page 3: GIS Feedstock Map ---
 def page_gis_map():
-    st.header(T["gis_header"])
     st.info(T["gis_subheader"])
     st.write(T["gis_placeholder"])
 
@@ -611,31 +667,28 @@ def page_gis_map():
 
 # --- Page Navigation (Replaced with Sidebar) ---
 if 'current_page' not in st.session_state:
-    st.session_state.current_page = T["page_iot"]
+    st.session_state.current_page = "iot"
 
 st.sidebar.title("Navigation")
 
 # Use button type to show active page
-page_iot_type = "primary" if st.session_state.current_page == T["page_iot"] else "secondary"
-page_ai_type = "primary" if st.session_state.current_page == T["page_ai"] else "secondary"
-page_gis_type = "primary" if st.session_state.current_page == T["page_gis"] else "secondary"
+page_iot_type = "primary" if st.session_state.current_page == "iot" else "secondary"
+page_ai_type = "primary" if st.session_state.current_page == "ai" else "secondary"
+page_gis_type = "primary" if st.session_state.current_page == "gis" else "secondary"
 
 if st.sidebar.button(T["page_iot"], use_container_width=True, type=page_iot_type):
-    st.session_state.current_page = T["page_iot"]
-    st.rerun()
+    st.session_state.current_page = "iot"
 
 if st.sidebar.button(T["page_ai"], use_container_width=True, type=page_ai_type):
-    st.session_state.current_page = T["page_ai"]
-    st.rerun()
+    st.session_state.current_page = "ai"
 
 if st.sidebar.button(T["page_gis"], use_container_width=True, type=page_gis_type):
-    st.session_state.current_page = T["page_gis"]
-    st.rerun()
+    st.session_state.current_page = "gis"
 
 # --- Page Runner ---
-if st.session_state.current_page == T["page_iot"]:
+if st.session_state.current_page == "iot":
     page_iot()
-elif st.session_state.current_page == T["page_ai"]:
+elif st.session_state.current_page == "ai":
     page_ai_optimizer()
-elif st.session_state.current_page == T["page_gis"]:
+elif st.session_state.current_page == "gis":
     page_gis_map()
