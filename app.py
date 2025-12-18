@@ -433,7 +433,7 @@ def page_iot():
 
     recommendations = []
 
-    if temp > 25.6:
+    if temp > 30.0:
         recommendations.append("🔥 High temperature detected. Reduce fuel input or increase cooling.")
     elif temp < 16.4:
         recommendations.append("❄️ Low temperature. Increase fuel or check insulation.")
