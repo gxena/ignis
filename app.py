@@ -740,8 +740,7 @@ def page_gis_map():
                         lon, lat, alt = geom.coords[0]  # Note: KML is lon, lat
                         folium.Marker(
                             location=[lat, lon],
-                            popup=subfeature.name,
-                            icon=folium.Icon(color="blue")
+                            popup=subfeature.name
                         ).add_to(m)
     except Exception as e:
         st.error(f"Error loading KML: {e}")
