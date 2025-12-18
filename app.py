@@ -14,7 +14,7 @@ import threading # Required for mqtt client in background thread
 
 # For GIS map
 import folium
-from streamlit_folium import st_folium
+from streamlit_folium import st_folium, folium_static
 from fastkml import kml, Placemark, Point
 
 # --- Configuration ---
@@ -795,7 +795,7 @@ def page_gis_map():
     #     ).add_to(m)
     
     # Display the map
-    st_folium(m, width=700, height=500, returned_objects=[])
+    folium_static(m, width=700, height=500)
     
     # st.write("### Routing Logic")
     # st.write("To automate routing, you can integrate APIs like OpenRouteService or Google Directions API.")
