@@ -15,7 +15,7 @@ import threading # Required for mqtt client in background thread
 # For GIS map
 import folium
 from streamlit_folium import st_folium, folium_static
-from fastkml import kml, Placemark, Point
+from fastkml import kml, Placemark, Point, Folder
 
 # --- Configuration ---
 st.set_page_config(
@@ -734,15 +734,16 @@ def page_gis_map():
             k.from_string(f.read())
         for feature in k.features():
             for folder in feature.features:
-                for subfeature in folder.features:
-                    if isinstance(subfeature, Placemark) and subfeature.geometry:
-                        geom = subfeature.geometry
-                        if isinstance(geom, Point):
-                            lon, lat, alt = geom.coords[0]  # Note: KML is lon, lat
-                            folium.Marker(
-                                location=[lat, lon],
-                                popup=subfeature.name
-                            ).add_to(m)
+                if isinstance(folder, Folder):
+                    for subfeature in folder.features:
+                        if isinstance(subfeature, Placemark) and subfeature.geometry:
+                            geom = subfeature.geometry
+                            if isinstance(geom, Point):
+                                lon, lat, alt = geom.coords[0]  # Note: KML is lon, lat
+                                folium.Marker(
+                                    location=[lat, lon],
+                                    popup=subfeature.name
+                                ).add_to(m)
     except Exception as e:
         st.error(f"Error loading KML: {e}")
     
