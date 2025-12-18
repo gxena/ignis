@@ -75,11 +75,6 @@ st.markdown("""
         line-height: 1.1;
         margin-bottom: 0.5rem;
     }
-
-    /* Align columns to bottom */
-    [data-testid="column"] {
-        align-items: flex-end !important;
-    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -170,22 +165,19 @@ with col2:
         label_visibility="collapsed",
         index=0 if st.session_state.lang == "English" else 1
     )
-    
-    # Refresh page when language changes
-    st.rerun()
 
 # Get translated text
 T = LANGUAGES[st.session_state.lang]
 
 # Set the main app title and page header in the first column
 with col1:
-    # st.title(T["app_title"])
+    st.title(T["app_title"])
     # Page header based on current page
-    if st.session_state.current_page == T["page_iot"]:
+    if st.session_state.current_page == "iot":
         st.header(T["iot_header"])
-    elif st.session_state.current_page == T["page_ai"]:
+    elif st.session_state.current_page == "ai":
         st.header(T["ai_header"])
-    elif st.session_state.current_page == T["page_gis"]:
+    elif st.session_state.current_page == "gis":
         st.header(T["gis_header"])
 
 # --- MQTT Client Setup with Queue ---
@@ -325,21 +317,32 @@ def append_to_history(new_data_row):
 # --- Page 1: IoT Sensor Dashboard ---
 def page_iot():
     # Sensor Location Selection and Monitoring in one row
-    col_sel, col_mon = st.columns([1, 1])
+    st.markdown("""
+    <style>
+    .sensor-row {
+        display: flex;
+        align-items: flex-end;
+        gap: 1rem;
+    }
+    </style>
+    """, unsafe_allow_html=True)
     
-    with col_sel:
-        sensor_locations = ["Jharkhand", "Chhattisgarh", "Odisha"]
-        if 'selected_sensor' not in st.session_state:
-            st.session_state.selected_sensor = "Jharkhand"
+    with st.container():
+        col_sel, col_mon = st.columns([1, 1])
         
-        st.session_state.selected_sensor = st.selectbox(
-            "Select Sensor Location:",
-            options=sensor_locations,
-            index=sensor_locations.index(st.session_state.selected_sensor)
-        )
-    
-    with col_mon:
-        st.info(f"📍 Currently monitoring: **{st.session_state.selected_sensor}**")
+        with col_sel:
+            sensor_locations = ["Jharkhand", "Chhattisgarh", "Odisha"]
+            if 'selected_sensor' not in st.session_state:
+                st.session_state.selected_sensor = "Jharkhand"
+            
+            st.session_state.selected_sensor = st.selectbox(
+                "Select Sensor Location:",
+                options=sensor_locations,
+                index=sensor_locations.index(st.session_state.selected_sensor)
+            )
+        
+        with col_mon:
+            st.info(f"📍 Currently monitoring: **{st.session_state.selected_sensor}**")
     
     # Handle topic change if sensor location changed
     global current_subscribed_topic
@@ -378,78 +381,63 @@ def page_iot():
     
     latest_data = st.session_state.latest_mqtt_data
     
+    # Display status alert as modern card and AI recommendation
+    status_col, rec_col = st.columns([1, 2])
+    
+    with status_col:
+        with st.container():
+            st.markdown("""
+            <div style="border: 2px solid #ddd; border-radius: 10px; padding: 20px; background-color: #f9f9f9; text-align: center;">
+                <h3>System Status</h3>
+            """, unsafe_allow_html=True)
+            if latest_data['status'] == "DANGER":
+                st.markdown('<p style="color: red; font-size: 24px;">⚠️ DANGER</p>', unsafe_allow_html=True)
+            elif latest_data['status'] == "WARNING":
+                st.markdown('<p style="color: orange; font-size: 24px;">⚠️ WARNING</p>', unsafe_allow_html=True)
+            else:
+                st.markdown('<p style="color: green; font-size: 24px;">✅ NORMAL</p>', unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
+    
+    with rec_col:
+        # AI Recommendation based on sensor values
+        temp = latest_data['Temperature']
+        gas = latest_data['CO2']
+        dust = latest_data['PM2_5']
+        
+        recommendations = []
+        if temp > 150:
+            recommendations.append("🔥 High temperature detected! Reduce fuel input or increase cooling.")
+        elif temp < 50:
+            recommendations.append("❄️ Low temperature. Increase fuel or check insulation.")
+        
+        if gas > 1000:
+            recommendations.append("💨 High CO2 levels! Improve ventilation or reduce emissions.")
+        elif gas < 200:
+            recommendations.append("🌬️ Low CO2. Combustion may be inefficient.")
+        
+        if dust > 50:
+            recommendations.append("🌫️ High dust levels! Clean filters or reduce particulate sources.")
+        
+        if not recommendations:
+            recommendations.append("✅ All parameters within optimal range. System operating normally.")
+        
+        with st.container():
+            st.markdown("""
+            <div style="border: 2px solid #ddd; border-radius: 10px; padding: 20px; background-color: #f0f8ff;">
+                <h3>🤖 AI Recommendations</h3>
+            """, unsafe_allow_html=True)
+            for rec in recommendations:
+                st.markdown(f"- {rec}")
+            st.markdown("</div>", unsafe_allow_html=True)
+    
+    # Display current metrics
+    st.divider()
+    col1, col2, col3 = st.columns(3)
+
     # Calculate deltas for metrics. Handle initial state where history might be empty or short.
     prev_temp = st.session_state.iot_history.iloc[-2]['Temperature'] if len(st.session_state.iot_history) > 1 else latest_data['Temperature']
     prev_gas = st.session_state.iot_history.iloc[-2]['CO2'] if len(st.session_state.iot_history) > 1 else latest_data['CO2']
     prev_dust = st.session_state.iot_history.iloc[-2]['PM2_5'] if len(st.session_state.iot_history) > 1 else latest_data['PM2_5']
-    
-    # Display current metrics
-    st.divider()
-    
-    # Status Card and AI Recommendation in one row
-    status_col, ai_col = st.columns(2)
-    
-    with status_col:
-        # Modern card for status
-        st.markdown("""
-        <div style="border: 2px solid #ddd; border-radius: 10px; padding: 20px; background-color: #f9f9f9; text-align: center;">
-            <h3>System Status</h3>
-            <p style="font-size: 24px; font-weight: bold; color: {};">{}</p>
-        </div>
-        """.format(
-            "red" if latest_data['status'] == "DANGER" else "orange" if latest_data['status'] == "WARNING" else "green",
-            latest_data['status']
-        ), unsafe_allow_html=True)
-    
-    with ai_col:
-        # AI Recommendation based on data
-        recommendations = []
-        
-        # Temperature check
-        if latest_data['Temperature'] > 80:
-            recommendations.append("🔥 High temperature detected - Consider cooling measures")
-        elif latest_data['Temperature'] < 20:
-            recommendations.append("❄️ Low temperature - Monitor heating")
-        
-        # Gas (CO2) check
-        if latest_data['CO2'] > 1000:
-            recommendations.append("💨 High CO2 levels - Improve ventilation")
-        
-        # Dust (PM2.5) check
-        if latest_data['PM2_5'] > 50:
-            recommendations.append("🌫️ High dust levels - Check filtration system")
-        
-        # Trend analysis
-        if len(st.session_state.iot_history) > 1:
-            temp_change = latest_data['Temperature'] - prev_temp
-            gas_change = latest_data['CO2'] - prev_gas
-            dust_change = latest_data['PM2_5'] - prev_dust
-            
-            if temp_change > 5:
-                recommendations.append("📈 Temperature rising rapidly")
-            elif temp_change < -5:
-                recommendations.append("📉 Temperature dropping rapidly")
-            
-            if gas_change > 100:
-                recommendations.append("📈 CO2 increasing - Check emissions")
-            
-            if dust_change > 10:
-                recommendations.append("📈 Dust levels rising - Inspect equipment")
-        
-        if not recommendations:
-            recommendations.append("✅ All parameters within normal range")
-        
-        st.markdown("""
-        <div style="border: 2px solid #ddd; border-radius: 10px; padding: 20px; background-color: #f0f8ff; text-align: center;">
-            <h3>AI Recommendations</h3>
-            <ul style="text-align: left;">
-        """ + "".join(f"<li>{rec}</li>" for rec in recommendations) + """
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # Display current metrics below
-    col1, col2, col3 = st.columns(3)
 
     col1.metric(T["current_temp"], f"{latest_data['Temperature']:.1f} °C", f"{latest_data['Temperature'] - prev_temp:+.1f}")
     col2.metric(T["current_co2"], f"{latest_data['CO2']:.1f} ppb", f"{latest_data['CO2'] - prev_gas:+.1f}") # Air quality (gas in ppb)
@@ -679,31 +667,28 @@ def page_gis_map():
 
 # --- Page Navigation (Replaced with Sidebar) ---
 if 'current_page' not in st.session_state:
-    st.session_state.current_page = T["page_iot"]
+    st.session_state.current_page = "iot"
 
 st.sidebar.title("Navigation")
 
 # Use button type to show active page
-page_iot_type = "primary" if st.session_state.current_page == T["page_iot"] else "secondary"
-page_ai_type = "primary" if st.session_state.current_page == T["page_ai"] else "secondary"
-page_gis_type = "primary" if st.session_state.current_page == T["page_gis"] else "secondary"
+page_iot_type = "primary" if st.session_state.current_page == "iot" else "secondary"
+page_ai_type = "primary" if st.session_state.current_page == "ai" else "secondary"
+page_gis_type = "primary" if st.session_state.current_page == "gis" else "secondary"
 
 if st.sidebar.button(T["page_iot"], use_container_width=True, type=page_iot_type):
-    st.session_state.current_page = T["page_iot"]
-    st.rerun()
+    st.session_state.current_page = "iot"
 
 if st.sidebar.button(T["page_ai"], use_container_width=True, type=page_ai_type):
-    st.session_state.current_page = T["page_ai"]
-    st.rerun()
+    st.session_state.current_page = "ai"
 
 if st.sidebar.button(T["page_gis"], use_container_width=True, type=page_gis_type):
-    st.session_state.current_page = T["page_gis"]
-    st.rerun()
+    st.session_state.current_page = "gis"
 
 # --- Page Runner ---
-if st.session_state.current_page == T["page_iot"]:
+if st.session_state.current_page == "iot":
     page_iot()
-elif st.session_state.current_page == T["page_ai"]:
+elif st.session_state.current_page == "ai":
     page_ai_optimizer()
-elif st.session_state.current_page == T["page_gis"]:
+elif st.session_state.current_page == "gis":
     page_gis_map()
