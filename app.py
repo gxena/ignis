@@ -177,7 +177,7 @@ T = LANGUAGES[st.session_state.lang]
 
 # Initialize current_page if not set
 if 'current_page' not in st.session_state:
-    st.session_state.current_page = T["page_iot"]
+    st.session_state.current_page = "iot"
 
 # Set the main app title and page header in the first column
 with col1:
