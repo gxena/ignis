@@ -681,7 +681,7 @@ def page_ai_optimizer():
 # --- Page 3: GIS Feedstock Map ---
 def page_gis_map():
     st.write("Interactive GIS Feedstock & Logistics Dashboard")
-    st.write("Map showing industries, coal mines, biomass villages, waste sites, pollution hotspots, and transport routes.")
+    # st.write("Map showing industries, coal mines, biomass villages, waste sites, pollution hotspots, and transport routes.")
     
     # Sample data - replace with your actual geocoded data from Google My Maps
     # Industries (power plants)
