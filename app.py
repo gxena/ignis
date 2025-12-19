@@ -547,7 +547,9 @@ def page_iot():
             except Exception as e:
                 st.error(f"Failed to parse uploaded CSV: {e}")
 
-    # Removed periodic rerun to allow proper navigation
+    # Periodic rerun every 5 seconds to refresh data
+    time.sleep(5)
+    st.rerun()
 
 # --- Page 2: AI Blend Optimizer ---
 def page_ai_optimizer():
